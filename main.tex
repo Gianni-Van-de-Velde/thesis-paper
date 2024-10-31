@@ -1,0 +1,51 @@
+\documentclass{report}
+
+\input{header.tex}
+
+\addbibresource{references.bib}
+
+\begin{document}
+    \includepdf{titlepage/titlepage.pdf}
+
+    \newpage
+    \newpage
+
+    \titleformat{\chapter}{}{}{0em}{\bf\Huge}
+
+    \afterpage{\blankpage}
+
+    \pagenumbering{roman}
+
+    \import{additional-sections/preface/}{content.tex}
+    \import{additional-sections/permissionofloan/}{content.tex}
+    \import{additional-sections/explanatorynote}{content.tex}
+    \import{additional-sections/abstract/}{content.tex}
+    \includepdf{extendedabstract/extended-abstract.pdf}
+
+    \tableofcontents
+
+    % table of figures / table of tables
+
+    % list of acronyms
+    
+    \titleformat{\chapter}[display]{\normalfont\bfseries\Huge}{\chaptertitlename\ \thechapter}{1em}{\bf\Huge}
+
+    \newpage
+    \pagenumbering{arabic}
+
+    \import{chapters/example/}{content.tex}
+    % add chapters here
+
+    % society impact
+    \import{chapters/societalimpact/}{content.tex}
+
+    \printbibliography
+    \addcontentsline{toc}{chapter}{Bibliography}
+
+    \appendix
+    \import{appendices/example/}{content.tex}
+
+    \afterpage{\blankpage}
+
+    % \makeback
+\end{document}

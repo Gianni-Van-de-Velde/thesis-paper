@@ -1,0 +1,27 @@
+% Put packages here
+
+% Define mandatory variables here
+\title{title}
+\author{author}
+
+% for printed version: \usepackage[a4paper, lmargin=4cm, rmargin=1.5cm, tmargin=2.5cm, bmargin=2.5cm]{geometry}
+\usepackage[a4paper, margin=2.5cm]{geometry}
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{titlesec}
+\usepackage{setspace}
+\setstretch{1.2}
+
+\setlength\parindent{0pt} % set paragraph indentation to 0
+
+\usepackage{afterpage}
+
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    \addtocounter{page}{-1}%
+    \newpage}
+
+\usepackage[backend=biber]{biblatex}
+
+\usepackage{multicol}
