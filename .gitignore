@@ -18,3 +18,5 @@ eps/
 # allow
 !titlepage/*.pdf
 !extendedabstract/*.pdf
+
+.idea

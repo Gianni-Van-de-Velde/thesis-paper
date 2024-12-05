@@ -1,0 +1,17 @@
+
+\chapter{Context-Aware Speculative Decoding}
+
+There are many stand-alone techniques to do speculative decoding. Each technique tries to perform as good as it can by itself. However, what seems to be underexplored in the domain of speculative decoding is a range of augmenting techniques. An augmenting technique will use a strong baseline method and try to fill in the gaps, where the baseline model underperforms. To have a good augmenting model, it must be fundamentally different from the baseline model. Context-Aware Speculative Decoding (CASD) is such an augmenting technique that does not work well by itself, but it thinks differently than the current SOTA.
+
+\section{Research hypothesis}
+A common usecase for LLMs is to use it in a RAG framework. In RAG, the context of the LLM is prefilled with documents that were searched in earlier steps. This context contains the facts that the LLM is expected to use in its answer. To improve factuality, the preprompt often contains explicit or implicit instructions to use or even copy the context. This is what Context-Aware Speculative Decoding will try to pick up on. When the LLM will copy long sequences of tokens from the context, a reasonable prediction could be made by just looking at the context. The hypothesis is that this yields long, good predictions, that are quite independent from model-based methods.
+
+\section{Principles of Context-Aware Speculative Decoding}
+Context-Aware Speculative Decoding is a super-lightweight method to generate speculative samples from the context itself. To do so, the last generated tokens are searched in the full context. All matches yield possible starting points for a new prediction. Using the hypothesis, there should be a reasonable probability that actually one of the matches found will be the sequence that the LLM is currently copying from. This method can work in a negligible amount of time and while not strong on itself, it only needs to hit once in a while to yield non-negligible speedups and energy improvements.
+
+\section{Independence of predictions with SOTA}
+In order for CASD to work well, its predictions must be sufficiently independent from the current SOTA. As the baseline speculative decoding method, EAGLE-2 was chosen. To the best of the writer's knowledge, EAGLE-2 is the best speculative decoding technique with open source code, making it the most interesting to work with. 
+
+The independence between two speculative decoding methods is not standardized and generally quite hard to define. For the purposes of this thesis, a custom independence statistic is necessary. This statistic works with the trees defined in Figure TODO.
+
+\section{}
