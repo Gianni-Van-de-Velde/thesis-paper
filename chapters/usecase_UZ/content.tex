@@ -1,0 +1,16 @@
+
+\chapter{Use case UZGent}
+While research often focuses on performance on quite artificial benchmarks, the most impact is made when the research can actually be put into practice. To put the theory of speculative decoding into practice, this thesis looks at a use case for RAG at the UZgent. This chapter starts with a description of the use case. Then the technical implementation is uncovered, detailing how the architecture of the RAG system looks. Afterwards, the feedback of potential users is listed and how the feedback was handled. Finally, the impact of the RAG system at the UZGent is measured.
+
+\section{Description of use case}
+In the UZGent, there is a system, Zenya and it contains many documents often needed by healthcare professionals. To work with the tool, one must either be guided or have enough experience themselves in order to get the document they need to read. Also, the documents can be quite lengthy, while often only a very specific part or summary is necessary. This makes the perfect use case for a RAG system. In this RAG system, the user first poses a question. Then the retrieval fetches the relevant documents based on a deeper understanding than the current keyword-only search. Finally, the relevant part of the document is read by the LLM and used to answer the question in a concise way. This description was rather general about RAG, however each use case is different and has different requirements. To get a grasp of the details of this use case, many involved people were interviewed. A summary is given below.
+
+The answer to each question is in one single document. This already simplifies the RAG complexity. It also means that the retriever has only one document to find as the ground truth. However, this can still be multiple chunks long, sometimes requiring a summary of large parts of the document.
+The question will be in natural language, rather than keywords as it used to be with Zenya. However, the language can contain abbreviations, short rather incomplete sentences. This is because the healthcare professional often needs the answer quickly.
+The system should know when it does not know. It is very important that when there is no answer in the database, it is able to detect this and answer accordingly.
+
+\section{Technical implementation}
+
+\section{Feedback}
+\section{Impact (efficiency)}
+Sidenode: not tested in real life scenario TODO
