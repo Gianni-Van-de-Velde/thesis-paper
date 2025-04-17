@@ -1,3 +1,5 @@
+\pdfoutput=1
+
 \documentclass{report}
 
 \input{header.tex}
@@ -9,6 +11,14 @@
 \usepackage{amsfonts}
 \usepackage{subfig}
 \usepackage{float}  %fix your pictures using [H]
+\usepackage{hyperref}
+
+\hypersetup{
+  colorlinks   = true,    % Colours links instead of ugly boxes
+  urlcolor     = black,    % Colour for external hyperlinks
+  linkcolor    = black,    % Colour of internal links
+  citecolor    = blue      % Colour of citations
+}
 
 
 \setlength{\parindent}{0pt}

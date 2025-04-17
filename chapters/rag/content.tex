@@ -1,29 +1,73 @@
 
-\chapter{RAG}
+\chapter{Retrieval-Augmented Generation}
 
+When the first LLMs were released, people were blast away by the numerous skills these models had learned. Yet, after a while it became clear that producing factually correct answers was a skill the models had not learned. It is not what the models were trained for and certainly when a fact was not in the training data, the LLM has no way of knowing that fact. Even worse, the LLM was trained to always give an answer, no matter how incorrect it is and it does so confidently. When an LLM makes up something rather than being based on facts, it is called a hallucination. These hallucinations can make the answers unreliable and Retrieval-Augmented Generation is made to solve that problem (partially).
 
-\section{RAG}
-A modern RAG pipeline consists of many more stages than a simple retrieve and then generate. The common steps are: TODO, each of which can take many different forms depending on the application.
+\section{What is RAG?}
 
-\subsection{Pre-Retrieval}
-In the pre-refrieval, the input of the user is first processed. As a normal user is not an experienced prompt engineer, the questions users ask are more often than not incomplete, ambiguous, ... To better interpret the question, three different methods have emerged: splitting the question, abstracting the question and adding a hypothetical answer.
-\subsubsection{Splitting the question}
-A question often consists of multiple subquestions. Demonstrate-Search-Predict and IRCoT try to leverage the chain of thought strategy, where the question is reduced to a simpler question iteratively. Laster, each question will then be answered with its own relevant retrieved documents. More parallel methods like ToC and RAG-Fusion break down the question recursively into multiple questions. The difference with CoT is that there are now multiple branches.
-\subsubsection{Abstracting the question}
-Step-Back Prompting tries to make the retrieval easier by first abstracting the question. The idea is that highly specific questions with uncommon words can mess with the embeddings, preventing the retriever to find semantically similar, relevant documents.
-\subsubsection{Adding a hypothetical answer}
-HyDE builds a hypothetical answer to the question. This hypothetical answer can contain hallucinations, but that is not a problem. The point is that the hypothetical answer should be semantically closer to the real answer than the question is.
+\begin{figure}[h]
+	\centering
+	\captionsetup{justification=centering}
+	\includegraphics[width=0.6\linewidth]{fig/RAG.png}
+	\caption{Diagram of the basic RAG pipeline.}
+	\label{fig:rag}
+\end{figure}
+
+RAG is a system where the LLM is provided with factual information in a prompt, such that it can answer correctly even if it has never seen that fact before or already forgot about it. Practically, a simple RAG pipeline has two stages: retrieval and generation. First the user asks a question and the most relevant pieces of text are retrieved from a database of facts. Then, this information is given to the LLM as part of the prompt, before it answers the question. This is visualized in Figure \ref{fig:rag}.
 
 \subsection{Retriever}
-A good retriever is a key component of a good RAG system. If the context is filled with irrelevant information, this can make the answer even worse. Most often a RAG retriever works with a hybrid model. This combines the advantages of a lexical search and a semantic search. Lexical search works on keywords and is good to find literal matches between the question and documents. This is complemented with dense retrieval. Dense retrievers search semantically, by comparing the embeddings of the documents and the question. There are many strong retrievers for general use cases, such as Splade, Contriever, GTR, ... These could server as a basis for fine-tuning on a specific domain, such as the medical domain for this thesis. However, this work has already been done by BioLord (TODO gebruik ik dit echt?). BioLord used contrastive learning to fine-tune an existing embedding model to perform better on medical data.
+The retriever in a RAG pipeline refers to the component that takes query text as an input and returns the most relevant context chunks. Needless to say, a good retriever is the basis for a good RAG system. In practice, good retrievers are hybrid retrievers, that combine the advantages of a lexical search and a semantic search. Lexical search works on keywords and is good to find literal matches between the question and documents. This is complemented with dense retrieval, using an embedding model. An embedding model is a neural network that is trained to take text as input and transform it into a vector that contains the ``meaning'' of the text. For a first time reader, this might not sound intuitive. For the purposes of this thesis, it is only important to understand that this model creates an output for each piece of text, which we can easily compare. For example, given a query and a piece of context, we can say: these strings are 20\% similar. In other words, this embedding model will allow us to efficiently find which pieces of text in the entire database are semantically similar to the query. 
+
+While lexical search is pracitally set in stone, there is much freedom in the semantic search. There are many strong embedding models available for general use cases, such as the Splade models \cite{formal2021splade, formal2021spladev2, lassance2024spladev3}, Contriever \cite{izacard2021unsupervisedcontriever}, GTR \cite{ni2021largegtr}, ... These could serve as a basis for fine-tuning on a specific domain, such as the medical domain for this thesis. However, within the scope of this thesis, we limit ourselves to using existing embedders directly. In that case, it is important to find the right embedder for the specific use case.
+
+\subsection{Generator}
+The generator is the component that takes the question and context as input, to formulate an answer using the information in the context. In practice, the question and context are combined in a prompt and that prompt is fed to an LLM. The first step is optimized through prompt engineering. This has become a whole field of research in se and there are many ways to incentivise the LLM to give better answers. Common prompt engineering methods include: adding structure, adding examples, telling the LLM what not to answer, defining roles, ... The second step is just the LLM generating an answer, but that can also be optimized strongly by choosing the right LLM and/or fine-tuning. Again, for the scope of this thesis fine-tuning costs too much time and compute. Thus, we limit ourselves to choosing the optimal LLM for the use case.
+
+\section{RAG optimizations}
+A modern RAG pipeline may consists of many more stages than a simple retrieve and generate step. As each application requires different tricks, there is an endless amount of extra steps one could add. For this reason only the potentially interesting methods are summarized below.
+
+\subsection{Pre-Retrieval}
+In an additional pre-retrieval step, the input of the user is first processed. As a normal user is not an experienced prompt engineer, the questions users ask are more often than not incomplete, ambiguous, ... To better interpret the question, three different methods have emerged.
+
+\subsubsection{Abstracting the question}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.9\linewidth]{fig/rag_abstract_prompt.png}
+	\caption{Diagram of prompt abstraction. First, the prompt is abstracted to the higher level reasoning that is necessary to answer the question. Then the relevant context is searched for both the original question and the abstracted question. The contexts are combined to form the prompt for the LLM. So the left part of the diagram is basic RAG and the right part adds the abstracted question for retrieval. Note that this example is cherry-picked such that the "context from abstracted" is much better, but often times the direct retrieval also yields relevant context, depending on the question.}
+	\label{fig:rag_abstract_prompt}
+\end{figure}
+
+Step-Back Prompting \cite{zheng2023takeastepback} tries to make the retrieval easier by first abstracting the question. The idea is that highly specific questions with uncommon words can confuse the retriever, preventing the it from finding semantically similar, relevant documents. This is also shown in Figure \ref{fig:rag_abstract_prompt}.
+
+\subsubsection{Retrieving based on hypothetical answer}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.9\linewidth]{fig/rag_hyde.png}
+	\caption{Diagram of HyDE. First, the LLM is asked to answer the question. Then the relevant context is searched for both the original question and the hypothetical answer. The contexts are combined to form the prompt for the LLM. So the left part of the diagram is basic RAG and the right part adds the hypothetical answer for retrieval. Note that the example is again cherry-picked to clarify where HyDE excels.}
+	\label{fig:rag_hyde}
+\end{figure}
+
+Retrieval is based on semantic similarity between the query and the context in the database. However, the question a user asks can be completely different from the expected answer. To narrow the gap between the query and the retrieved document, HyDE \cite{gao2023precisehyde} builds a hypothetical answer to the question. This hypothetical answer can contain hallucinations, but that is not a problem. The point is that the hypothetical answer should be semantically closer to the real answer than the question is. This is further clarified by Figure \ref{fig:rag_hyde}.
+
+\subsubsection{Splitting the question}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/demonstrate_search_predict.png}
+	\caption{Illustration from Demonstrate-Search-Predict \cite{khattab2022demonstrate}. Demonstrate-Search-Predict (DSP) performs multi-hop reasoning, retrieving the necessary documents in each step. This is indicated by the interleaving of LM (language model) asking questions and the RM (retrieval model) answering those questions by providing the right pieces of text.}
+	\label{fig:demonstrate_search_predict}
+\end{figure}
+
+A question often consists of multiple subquestions. Demonstrate-Search-Predict \cite{khattab2022demonstrate} and IRCoT \cite{trivedi2022interleaving} try to leverage the chain of thought strategy, where the question is reduced to a simpler question iteratively. Figure \ref{fig:demonstrate_search_predict} clarifies this principle with an example. Later, each question will then be answered with its own relevant retrieved documents. More parallel methods like ToC \cite{kim2023tree} and RAG-Fusion \cite{rackauckas2024ragfusion} break down the question recursively into multiple questions. The difference with CoT is that there are now multiple branches.
 
 \subsection{Post-retrieval}
-Retrieval usually has a rather course granularity. This means that the retrieved documents might contain the relevant information, but also much noise around it. To reduce this noise, post-retrieval tries to filter the context to only the relevant parts. This is a use case of prompt compression. Also, a reranker will reorder the retrieved documents to place the most important parts at the start. This is because an LM takes the first sentences more into account. This effect is known as the lost-in-the-middle effect.
+The retrieval step typically yields multiple chunks, pieces of text, in which the answer is hopefully present. But sometimes the retriever fails and it adds an irrelevant chunk or it succeeds, but the relevant part is only a small fraction of the entire chunk. This all adds noise to the input of the LLM and LLMs often get confused by this. That is why a post-retrieval step is sometimes necessary to filter the abbundance of information. The two common methods are prompt compression and reranking.
  
 \subsubsection{Prompt compression}
-Prompt compression intends to make the prompt, the input of the LM, shorter, while still maintaining the meaning behind the prompt. Prompt compression usually gets subdivided into three categories: extractive compression, abstractive compression and token pruning.
-\subsubsection{Why prompt compression}
-There are multiple reasons to keep the length of the input for a LM limited. Firstly, each model has a limited context window and it is impossible for the LM process the full input when the input gets longer. Secondly, longer input can degrade the quality of the generation. This is because typically LMs are trained with fixed length inputs, much shorter than the context window. So any input longer than that is actually out of distribution. Lastly, longer input increases the necessary computation, which leads to longer latency and more energy consumption.
+Prompt compression intends to make the prompt, the input of the LLM, shorter, while still maintaining the meaning behind the prompt. There are multiple reasons to keep the length of the input for a LLM limited. Firstly, each model has a limited context window and it is impossible for the LLM process the full input when the input gets longer. Secondly, longer input can degrade the quality of the generation. This is because typically LLMs are trained with fixed length inputs, much shorter than the context window. Even though they are then trained to work with longer inputs, the performance usually stays subpar \cite{liu2024lost}. Lastly, longer input increases the necessary computation, which leads to longer latency and more energy consumption. While that does not degrade the output quality, these effects are also not desirable. To limit these effects, there are three categories of prompt compression, each with their own benefits and weaknesses: extractive compression, abstractive compression and token pruning.
+
 \subsubsection{Extractive compression}
 Extractive compression, the type of compression that currently performs best, is based on extracting relevant parts from the original text. These parts can have a granularity of phrases, sentences or passages TODO? In RAG systems, this extraction can be based on the semantic similarity between a part of the context and the input prompt. 
 
