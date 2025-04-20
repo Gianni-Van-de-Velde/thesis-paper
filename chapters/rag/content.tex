@@ -38,6 +38,7 @@ The generator is the component that takes the question and context as input, to 
 A modern RAG pipeline may consists of many more stages than a simple retrieve and generate step. As each application requires different tricks, there is an endless amount of extra steps one could add. For this reason only the potentially interesting methods are summarized below.
 
 \subsection{Pre-Retrieval}
+\label{sec:pre_retrieval}
 In an additional pre-retrieval step, the input of the user is first processed. As a normal user is not an experienced prompt engineer, the questions users ask are more often than not incomplete, ambiguous, ... To better interpret the question, three different methods have emerged: abstracting the question, retrieving based on hypothetical answer and splitting the question.
 
 \subsubsection{Abstracting the question}
@@ -79,7 +80,7 @@ The retrieval step typically yields multiple chunks, pieces of text, in which th
 \subsubsection{Reranker}
 A reranker takes the retrieved contexts and orders them based on relevance. The difference with the embedder of a retriever, is that it does not go to an intermediary embedding space to define similarity. This usually makes it much more compute intensive, but also more accurate. For this reason, the reranker is only used after only a limited amount of candidate chunks remain.
 
-QLM is a recent method that uses the modern LLM's zero-shot capabilities to rerank \cite{zhuang2023qlm}. The score of the context is the probability that the question would be generated given the context. The idea is that more relevant contexts should make the question more likely. Another method is to train a cross-encoder to output the relevance of the context given the query directly. One such cross-encoder is ``bge-reranker-v2-m3'' \cite{chen2024bge}.
+QLM is a recent method that uses the modern LLM's zero-shot capabilities to rerank \cite{zhuang2023qlm}. The score of the context is the probability that the question would be generated given the context. The idea is that more relevant contexts should make the question more likely. Another method is to train a cross-encoder to output the relevance of the context given the query directly. One such cross-encoder is ``BGE-Reranker-v2-M3'' \cite{chen2024bge}.
 
 \section{Generator energy optimization}
 While the previous optimization techniques were about generating better answers, this section discusses how the best answer is generated with the least amount of energy. Speculative decoding is the method that is the main topic of this thesis, but we also list alternative methods that are equally valid to reduce the energy consumption of the generator. Unfortunately, energy consumption is rarely discussed in papers, so without actual experiments we only know that the method should be able to reduce energy usage in theory.

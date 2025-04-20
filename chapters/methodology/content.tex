@@ -99,7 +99,7 @@ Jij bent een dokter. Jij kent alle medische procedures van het UZGent.
 [einde vraag]
 [begin antwoord]
 \end{verbatim}
-This is of course the prompt for the G in RAG. As stated before, the generator was also used in other settings, but the same style with brackets and "begin" and "einde" was kept. As a sidenote, the context of "You know all medical procedures of the UZGent" might seem weird, motivating the generator to answer possibly more often than it should. However, without this part the model seemed to be fine tuned to say it cannot answer medical questions. So it is a little hack to get an answer at all.
+This is of course the prompt for the G in RAG. As stated before, the generator was also used in other settings, but the same style with brackets and "begin" and "einde" was kept. As a sidenote, the context of "You know all medical procedures of the UZGent" might seem weird, motivating the generator to answer possibly more often than it should. However, without this part the model seemed to be fine-tuned to say it cannot answer medical questions. So it is a little hack to get an answer at all.
 
 The second technique is few-shot prompting TODO source. This uses in-context learning to show the model what typical input is and the corresponding model answer. At the time of development, the prefered answer of the full pipeline was still unclear, so few-shot prompting was not used. But for other techniques, such as HyDE, it was used to get improved results. 
 
