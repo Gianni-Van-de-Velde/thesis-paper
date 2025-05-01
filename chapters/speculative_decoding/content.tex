@@ -2,24 +2,80 @@
 \chapter{Speculative Decoding}
 \label{sec:speculative_decoding}
 
-The academic part of this thesis revolves around speculative decoding. This chapter provides details around speculative decoding and the current landscape of research. This serves as context for the next chapter, where a new model is proposed. First the principles of speculative decoding are explained. Then an overview is given of the most recent methods. Finally, one model is chosen to work as a baseline for the rest of the research.
+The academic part of this thesis revolves around speculative decoding. This chapter provides details around speculative decoding and the current landscape of research. It serves as context for the next chapter, where our new model, CASD, is proposed. First we explain the context of speculative decoding, followed by how it works. Finally, we give an overview of the most recent advancements. 
 
-\section{Context of speculative decoding?}
-To understand the need for speculative decoding, one must first understand the usual way of decoding with LLMs. To start, consider an LLM host, that only occasionally serves a user asking a question. Each time a question comes in, the LLM generates an answer autoregressively. Autoregressive means that the LLM "reads" all previous tokens to generate the next token. So to construct an answer, the LLM takes the input and generates one new token. Then it takes the input and the new token and generates another new token. This is repeated until the LLM decides the answer is complete or the maximal output length is reached.
+\section{Context of speculative decoding}
 
-The issue with this autoregressive decoding is that it does not use the full capacity of the GPU it is running on. Oversimplifying what GPUs do, there are two constraints that limit the speed with which a GPU can run an LLM. On the one hand, a GPU has limited computing power, which means it can only do so many operations per second. On the other hand, GPUs can load a limited amount of data per time. Surprisingly, the latter constraint will be the real bottleneck for the LLM host from before. This is because each time the LLM is called (so many times per answer), the LLM parameters need to be loaded from the VRAM to the GPU. This large amount of data seems to be slower to transfer than the actual time the GPU needs to compute the results. In other words, the GPU could calculate more, but loading the model each time keeps it from doing so.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/spec_dec_autoregressive.png}
+	\caption{Autoregressive decoding by standard LLM.}
+	\label{fig:spec_dec_autoregressive}
+\end{figure}
 
-There are two types of solutions for this bottleneck. The first one is relevant to the larger players in the market. Consider the LLM host from before, but now it receives many requests per second. In this case, the questions can be batched. This means that the server waits for a certain number of questions to arrive, before processing them all together, in parallel. The effect is that the model is only loaded once into the GPU, while generating the next token for each of the questions. So if there are for example 16 questions in a batch, the GPU is calculating 16 times as much, while loading the same model only once. Thus, the calculation intensity is increased and much of the spare calculation-capacity is filled in. In conclusion, this method increases the GPU efficiency by batching multiple questions, by exploiting the many requests coming in per second.
+To understand the need for speculative decoding, one must first understand the usual way of decoding with LLMs. Figure \ref{fig:spec_dec_autoregressive} shows the normal, autoregressive way of decoding. Autoregressive means that the LLM ``reads'' all previous tokens to generate the next token. So to construct an answer, the LLM takes the input and generates one new token. Then it takes the input and the new token and generates another new token. This is repeated until the LLM decides the answer is complete or the maximal output length is reached.
 
-The second solution to the GPU memory bottleneck is speculative decoding. Speculative decoding does not need the large load of requests per second to achieve parallellism. Instead, it tries to break the autoregressive nature of LLMs and to parallellize it. But how does that work? First, guesses are made of what the LLM will generate. Then the guesses are verified in parallel. Finally, the longest correct guess is accepted. This is also repeated until a stop condition is met. This is still autoregressive, one might say, but there are possibly many tokens generated per iteration thanks to the parallellism. Each step is detailed more below.
+The inefficiency of this autoregressive decoding is that it does not use the full capacity of the GPU it is running on. While GPUs are very complex, we can still simplify their limitations to two constraints. On the one hand, a GPU has limited computing power, which means it can only do so many operations per second. On the other hand, GPUs can load a limited amount of data per second. Surprisingly, the latter constraint is be the real bottleneck for LLMs. This is because each time the LLM is called (each generation step from before), the LLM parameters need to be loaded from the VRAM to the GPU. This large amount of data seems to be slower to transfer than the actual time the GPU needs to compute the results. In other words, the GPU could calculate faster, but loading the model each time keeps it from doing so.
+
+There are two types of solutions for this bottleneck. The first one is relevant to the larger players in the market. Suppose an LLM host receives many requests per second. In this case, the questions can be batched, as shown in Figure \ref{fig:spec_dec_batch}. This means that the server waits for a certain number of questions to arrive, before processing them all together, in parallel. The effect is that the model is only loaded once into the GPU, while generating the next token for each of the questions. So if there are for example 16 questions in a batch, the GPU is calculating 16 times as much, while loading the same model only once. Thus, the calculation intensity is increased and much of the spare calculation-capacity is filled in. In conclusion, this method increases the GPU efficiency, by exploiting the many requests coming in per second.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=1\linewidth]{fig/spec_dec_batch.png}
+	\caption{Batch decoding on a small example. The different users' prompts are indicated with colors.}
+	\label{fig:spec_dec_batch}
+\end{figure}
+
+The second solution to the GPU memory bottleneck is speculative decoding. Speculative decoding does not need the large load of requests per second to achieve parallellism. Instead, it tries to break the autoregressive nature of LLMs and to parallellize it. The following section describes how that works in detail.
 
 \section{How does speculative decoding work?}
 
-The first step is to make a good guess what the LLM will generate, without calling the LLM itself. This step is the hardest and by consequence the focus point of most research in the domain. Many clever methods have been found already. There are three fundamentally different categories of methods to make guesses. One category contains the statistical methods. REST is one of the statistical models. The second category is the model based methods. EAGLE-2 is one of those methods. The third category is the LLM based methods.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/spec_dec_draft.png}
+	\caption{Step 1 of speculative decoding: the drafter makes a tree of possible outcomes. Each draft is the same as its parent plus one speculated token.}
+	\label{fig:spec_dec_draft}
+\end{figure}
 
-In the second step, the guesses are verified in parallel. To do so, a tree is made of all predictions. In this tree, guesses with a common prefix are joined, such that the prefix has to be verified only once. An example of such tree is shown in Figure \ref{TODO}. Once the tree is made, each node of the tree needs to be ran through the LLM, to see what the correct token is at that step. When sending all tokens to the LLM, it must be sure that tokens from different guesses do not interfere with each other. This is made possible with tree attention. Tree attention puts a mask over the attention, such that tokens from other branches in the tree are "invisible" to the current branch. So to conclude, tree attention makes it possible to call the LLM only once, while verifying many guesses.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/spec_dec_llm_call.png}
+	\caption{Step 2 of speculative decoding: the LLM call determines which token would be generated next for each of the speculations.}
+	\label{fig:spec_dec_llm_call}
+\end{figure}
 
-The third step is to accept the longest correct guess. A "correct guess" can have multiple interpretations. When the temperature is 0, it is easier to define. Temperature 0 means that the LLM will always, deterministically pick the most probable next word. In this case, correct means that the guess chose exactly the same tokens as the LLM. In the case of temperature different from 0, the answer is not deterministic anymore. So more calculations are involved to guarantee the output distribution is the same as the LLM would have chosen. As this sampling method is not the focus of this thesis, it is not further explained. One last remark must be made to fully understand the accept step. The real accepted length is always one larger than the longest accepted guess. How is that possible? The LLM was run for each node in the tree. So for each step, it is known what the correct token was, regardless of the guesses made. So that means the accepting can start at the root. If the next token is guessed correctly, great, accept it and move to that node. If it is not guessed correctly, accept the correct token that was not guessed. This last part ensures one extra token is accepted each iteration.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/spec_dec_verify.png}
+	\caption{Step 3 of speculative decoding: each speculated token is verified. The longest correct speculation is accepted. Here that is ``This thesis is about''.}
+	\label{fig:spec_dec_verify}
+\end{figure}
 
-TODO maybe put this also somewhere in this chapter ->
-The most relevant techniques for this thesis are EAGLE 2, TriForce and Inference with Reference. EAGLE 2 makes not one prediction, but a tree of predictions. All of these branches will then be checked in parallel. Such a branch is made autoregressively, much like a normal LM. However, in EAGLE they trained a smaller model to use the features of the large model and the output to then predict the features of the next token and the output. This way, the smaller model uses some of the internal knowledge of the large model in subsequent predictions. This method seems to work well, as it performs best of all speculative decoders up until oct 29 TODO. TriForce uses a more standard approach of letting a smaller model draft the next tokens and then using the large model to verify. However, it does so hierarchically, with two draft layers. Lastly, Inference with Reference notes that in situations where copying context is common (such as RAG applications), using parts of the context as a next guess can also work well.
+Speculative decoding tries to form batches, but rather than looking at multiple users, it looks multiple decoding steps ahead. First, guesses are made of what the LLM could generate in the next steps (Figure \ref{fig:spec_dec_draft}) and then the guesses are run through the LLM in parallel (Figure \ref{fig:spec_dec_llm_call}). Finally, the longest correct guess is accepted (Figure \ref{fig:spec_dec_verify}). This procedure is repeated until a stop condition is met. That is still autoregressive, one might say, but often there are multiple tokens generated per LLM call and that is what matters. Each step is detailed more below.
+
+The first step is to make a good guess what the LLM will generate, without calling the LLM itself. This step is the hardest step and by consequence the focus of most research in the domain. Many clever methods have been found already. There are two fundamentally different categories of method: the statistical methods and the neural methods.
+
+In the second step, the guesses are verified in parallel. To do so, a tree is made of all predictions. In this tree, guesses with a common prefix are joined, such that the prefix has to be verified only once. An example of such tree is shown in Figure \ref{fig:spec_dec_draft}. Once the tree is made, each node of the tree needs to be ran through the LLM to see what the correct token is at that step, as visualized in Figure \ref{fig:spec_dec_llm_call}. When sending all tokens to the LLM, it must be sure that tokens from different guesses do not interfere with each other. This is made possible with tree attention. Tree attention puts a mask over the attention, such that tokens from other branches in the tree are "invisible" to the current branch. So to conclude, tree attention makes it possible to call the LLM only once, while verifying many guesses.
+
+The third step is to accept the longest correct guess, as shown in Figure \ref{fig:spec_dec_verify}. A correct guess can have multiple interpretations. When the temperature is 0, it is easier to define. Temperature 0 means that the LLM will always, deterministically pick the most probable next word. In this case, correct means that the guess chose exactly the same tokens as the LLM. In the case of temperature different from 0, the answer is not deterministic anymore. So more calculations are involved to guarantee the output distribution is the same as the LLM would have chosen. As this sampling method is not the focus of this thesis, it is not further explained. One last remark must be made to fully understand the accept step. The real accepted length is always one larger than the longest accepted guess. How is that possible? Suppose we had no correct guesses, then we still called the LLM on the original output. Similarly if we had n correct tokens, we also called the LLM on the n-th token and know what the n+1th token should be. This last part ensures one extra token is accepted each iteration.
+
+\section{Drafting methods}
+To understand the innovation of CASD, we must first look at the existing drafters and what their weaknesses are.
+
+Starting off with the statistical techniques: REST \cite{he2023rest} makes drafts by scanning existing text to find probable snippets. Practically, they use a large dataset of existing documents to find continuations of what is currently being generated. This is visualized in Figure \ref{fig:spec_dec_rest}. We also mention Inference with Reference \cite{yang2023inference}, not for its performance, but because it has similarities with the method we propose. Inference with Reference works similarly to REST, but instead of looking in a large dataset, it looks back at the prompt and the generated tokens to see if it is copying from its own context. Statistical models are typically very fast, but they do not generate the longest accepted drafts on average. They are outperformed by the neural models, which are very good at predicting a few tokens very consistently. 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/spec_dec_rest.png}
+	\caption{Example of REST drafting. In the large dataset, REST found a match in the documents and it speculates the words that follow it in the document.}
+	\label{fig:spec_dec_rest}
+\end{figure}
+
+The second category of drafters, the neural speculators, can be further subdivided based on their key ideas. The key idea of the earlier methods was to use a smaller LLM to speculate what the larger LLM would generate. However, they do not exploit the features that are generated by the LLM ``for free''. These features contain valuable information, the thoughts of the LLM in a sense. So the key idea of most new models is to use the features generated by the LLM too, as an extra source of input. For example, the current state-of-the-art, EAGLE-2, tries to generate the next features autoregressively instead of generating the tokens directly. This is visualized in Figure \ref{fig:EAGLE_model}. The core weakness of neural speculators is that they are defined by their training set. If they are trained on English, they will probably work well only on English (as we show later). Thus, anything out-of-distribution can be a weak spot.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig/EAGLE_model.png}
+	\caption{EAGLE-2 uses the LLM's \textcolor{orange-ish}{features} and previous \textcolor{blue-ish}{tokens} to predict the next step. It is used autoregressively, to draft multiple tokens ahead. \cite{li2024eagle}}
+	\label{fig:EAGLE_model}
+  \end{figure}
