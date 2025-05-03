@@ -1,0 +1,32 @@
+{"rule":"A_INFINITIVE","sentence":"^\\QThis resulted in a validate and test set that UZGent can use to verify the performance of any retriever on Zenya data.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QThis resulted in a validate and test set that UZGent can use to verify the performance of any retriever on Zenya data.\\E$"}
+{"rule":"COMMA_COMPOUND_SENTENCE","sentence":"^\\QRetrieval-Augmented Generation (RAG) is a technique that is very popular in the business world and it yields such a high-copy environment.\\E$"}
+{"rule":"COMMA_COMPOUND_SENTENCE","sentence":"^\\QIn this thesis we worked together with UZGent and we made sure both parties benefited from the collaboration.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QResponsible use is defined as being aware of the limitations, risks, pitfalls of using generative AI, such as (un)reliability, bias, copyright, data security, privacy, social inequality, ethical and sustainable impact, etc.\\E$"}
+{"rule":"COMMA_COMPOUND_SENTENCE","sentence":"^\\QYet, the generate step of RAG is currently no added value and it will probably require significant time, effort and money to extract value from such generator.\\E$"}
+{"rule":"AGREEMENT_SENT_START","sentence":"^\\QRQ 1.2 Which speedups does CASD deliver?\\E$"}
+{"rule":"INDEPENDENTLY_FROM_OF","sentence":"^\\QThe hypothesis is that this yields long, good predictions, that are quite independent from neural-based methods.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QWith it, the widescale usage of LLMs has grown so much, up to the point that their energy consumption has raised major concerns \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q.\\E$"}
+{"rule":"ENGLISH_WORD_REPEAT_BEGINNING_RULE","sentence":"^\\QRQ 1.2 Which speedups does CASD deliver?\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QThis has become a whole field of research in se and there are many ways to incentivize the LLM to give better answers.\\E$"}
+{"rule":"ENGLISH_WORD_REPEAT_BEGINNING_RULE","sentence":"^\\QSpeculative decoding tries to reduce the energy an LLM takes to generate an answer by reducing the number of forward passes (\\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q the number of times the LLM is activated).\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QAlso, this allows for complexer application pipelines that require more LLM steps, such as the recently popular agents \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q.\\E$"}
+{"rule":"A_INFINITIVE","sentence":"^\\QNext to that, we also built a validate and test set, such that UZGent can evaluate and compare different AI implementers in how well their retrievers work.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QSimilarly, if we had n correct tokens, we also called the LLM on the n-th token and know what the n+1th token should be.\\E$"}
+{"rule":"ORDINAL_NUMBER_SUFFIX","sentence":"^\\QSimilarly, if we had n correct tokens, we also called the LLM on the n-th token and know what the n+1th token should be.\\E$"}
+{"rule":"FILE_EXTENSIONS_CASE","sentence":"^\\QThe database of Zenya contained many file formats: pdf, docx, excel, ...\\E$"}
+{"rule":"FILE_EXTENSIONS_CASE","sentence":"^\\QThe database of Zenya contained many file formats: pdf, docx, excel, ...\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QYet, it seemed that the majority of the files were pdfs and docx, most of which contained primarily text.\\E$"}
+{"rule":"FILE_EXTENSIONS_CASE","sentence":"^\\QYet, it seemed that the majority of the files were pdfs and docx, most of which contained primarily text.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QThe first conclusion is that pdfs and docx are important, while the rest can be ignored in a simple POC.\\E$"}
+{"rule":"FILE_EXTENSIONS_CASE","sentence":"^\\QThe first conclusion is that pdfs and docx are important, while the rest can be ignored in a simple POC.\\E$"}
+{"rule":"FILE_EXTENSIONS_CASE","sentence":"^\\QAlso, the data exporter made it possible to convert docx to pdf and for simplicity, this was used, such that the input data was as homogeneous as possible.\\E$"}
+{"rule":"FILE_EXTENSIONS_CASE","sentence":"^\\QOne example is the character \"\\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q\" which often appears in places one cannot find visually inspecting the pdf.\\E$"}
+{"rule":"FILE_EXTENSIONS_CASE","sentence":"^\\QFor this reason, a pdf text cleaner scans all text and strips the text down to the real content.\\E$"}
+{"rule":"COMMA_PARENTHESIS_WHITESPACE","sentence":"^\\QPractically, this means that a hierarchy is followed where, for example, the new line character \"\\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Qn\" is preferred over a space \" \" to split on.\\E$"}
+{"rule":"ENGLISH_WORD_REPEAT_RULE","sentence":"^\\QOther factors could be at play too, but no deep analysis was done: whatever works works.\\E$"}
+{"rule":"PLURAL_VERB_AFTER_THIS","sentence":"^\\QThis docker compose will then spin up the docker containers.\\E$"}
+{"rule":"FIRST_OF_ALL","sentence":"^\\QFirst of all, this test data is important for future use at the UZGent, as they want to use it to evaluate all possible competitors that claim they can do better than the current system, Zenya.\\E$"}
+{"rule":"A_INFINITIVE","sentence":"^\\QThis means a validate set is necessary to hand over to the competitor and a test set to keep for themselves.\\E$"}
+{"rule":"STEPS_TO_DO","sentence":"^\\QThe first step to do proper machine learning in general, is to have a high quality validate and test set.\\E$"}
+{"rule":"FIRST_OF_ALL","sentence":"^\\QFirst of all, people become lazy and stop checking the sources, that is just a fact.\\E$"}

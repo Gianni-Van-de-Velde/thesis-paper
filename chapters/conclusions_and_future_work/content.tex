@@ -1,15 +1,26 @@
 
 \chapter{Conclusions and future work}
 \label{sec:conclusion_future_work}
-TODO
-Better embedder for UZGent
-Add metadata from UZgent
-Reranking
-Take match length into account more
-Cut tokens from EAGLE-2
-answer research questions
 
-Use of chatgpt
-https://www.ugent.be/ea/nl/faculteit/studentenadministratie/masterproef/vorm2425.pdf
-    Do I really have to do the list of abbreviations?
-    What about the order conclusion - societal impact as opposed to what it is now?
+In this thesis, we introduced CASD, a model-agnostic augmentation to any modern speculator for speculative decoding. Multiple benchmarks proved its performance in RAG scenarios, while overhead for other scenarios remains limited. We introduced one of those benchmarks ourselves; UZGentRAG is made of real-world questions doctors asked a RAG chatbot, which we implemented at UZGent. To summarize the findings, we answer the research questions posed in the introduction:
+
+\begin{itemize}
+    \item \textbf{RQ 1}: Could context improve speculative decoding? Yes it can. In RAG use cases, CASD successfully improves speculative decoding, by drafting copies from the context. As UZGentRAG and SQuAD are benchmarks of the intended use cases, only these are mentioned below.
+    \\ \textbf{RQ 1.1} Which energy gains does CASD make? CASD makes energy gains of 17\% on UZGentRAG and 7\% on SQuAD.
+    \\ \textbf{RQ 1.2} Which speedups does CASD deliver? The speedups are 1.17 for UZGentRAG and 1.08 for SQuAD.
+    \item \textbf{RQ 2}: Does a real-world benchmark in niche domain show significantly different results from existing benchmarks in speculative decoding? Yes, the results from UZGentRAG differ significantly from SQuAD and even more from the non-RAG benchmarks. This shows a gap of niche benchmark in the current set of public benchmarks.
+    \item \textbf{RQ 3}: Can a RAG system provide additional value at UZGent? Partially. The retriever has potential to save healthcare professionals much time that they could be spending on helping their patients. Yet, the generate step of RAG is currently no added value and it will probably require significant time, effort and money to extract value from such generator.
+\end{itemize}
+
+In the future, we expect CASD to become the default augmentation to other speculators, because of its cheap, high quality, long length speculations. The future might bring even more advanced strategies around the idea of CASD. This is the future work we see for CASD:
+\begin{itemize}
+    \item Applying CASD to the baseline's speculated tokens. CASD currently works completely independent of the baseline speculator and merges the speculation trees afterwards. However, the results showed that EAGLE-2 was already reasonably good at copying shorter spans. If CASD could pick up on those shorter spans and expand on them, that could lead to even longer high quality speculations.
+    \item Taking into account speculator confidence. Some speculators (e.g. EAGLE-2) have a built-in confidence metric, which can help decide which tokens to speculate. CASD does not have that, but in Section \ref{sec:further_analysis}, we showed that combining match length with prediction depth provides a good heuristic for confidence. Combining this information, we can keep only the top-k speculations according to confidence. This allows for optimizing k to the specific hardware used, which can lead to significant gains in efficiency \cite{fernandez2025energy}.
+    \item Optimization with CUDA kernels. The current implementation is not overly optimized. So, it is likely that further optimizations such as specialized CUDA kernels could help CASD achieve even higher speedups.
+\end{itemize}
+
+Also for the use case at UZGent we summarize the future work:
+\begin{itemize}
+    \item On the practical side, we suggest that UZGent focuses on evaluation rather than implementation. UZGent is a hospital and its IT department works to make the life of their healthcare professionals easier. Developing in-house AI solutions is more likely than not beyond the scope of that task. What seems more realistic is that the IT department builds up a good framework to evaluate all AI solution providers and to see which solution benefits their healthcare professionals the most. The test set for retrieval we made together is certainly a step in the right direction. As the retrieval of current systems is subpar compared to the possibilities of modern AI, we suggest to start there.
+    \item On the technical side, many possibilities remain unexplored. The low-hanging fruit for the data in Zenya, might be to add metadata to the queries. However, fine-tuning the AI models seems to have the largest potential impact, as current embedders get confused by terms that were not part of their training data.
+\end{itemize}

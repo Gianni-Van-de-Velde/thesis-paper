@@ -37,6 +37,11 @@
 \titlespacing*{\subsection}{0pt}{\dimexpr\parskip-1pt}{\parskip}
 \titlespacing*{\subsubsection}{0pt}{\dimexpr\parskip-1pt}{\parskip}
 
+\title{\LARGE Context-Aware Speculative Decoding for Retrieval Augmented
+Generation with a case study at UZGent}
+\author{Gianni Van de Velde}
+\let\endtitlepage\relax
+
 \begin{document}
     \includepdf{titlepage/titlepage.pdf}
 
@@ -73,17 +78,17 @@
     \import{chapters/context_aware_speculative_decoding/}{content.tex}
     %\import{chapters/results/}{content.tex}
     % add chapters here
+    \import{chapters/conclusions_and_future_work/}{content.tex}
 
     % society impact
     \import{chapters/societalimpact/}{content.tex}
-
-    \import{chapters/conclusions_and_future_work/}{content.tex}
 
     \printbibliography
     \addcontentsline{toc}{chapter}{Bibliography}
 
     \appendix
-    \import{appendices/example/}{content.tex}
+    \import{appendices/documents_uzgent/}{content.tex}
+    \import{appendices/use_of_genai/}{content.tex}
 
     \afterpage{\blankpage}
 
