@@ -1,7 +1,7 @@
 
 \chapter{Use case UZGent}
 \label{sec:use_case_uzgent}
-To put the theory of speculative decoding into practice, this thesis looks at a use case for RAG at the UZgent. This chapter starts with a description of the use case. Then the technical implementation is uncovered, detailing how the architecture of the RAG system works.
+To put the theory of speculative decoding into practice, this thesis looks at a use case for RAG at the UZgent. This chapter starts with a description of the use case. Then the technical implementation is uncovered, detailing how the architecture of the RAG system works. Afterwards, we discuss the test results of healthcare professionals interacting with the RAG system. Finally, we list some future work and ethical considerations specifically for this RAG system.
 
 \section{Description of use case}
 
@@ -150,8 +150,10 @@ The department of ICT at UZGent was very enthusiastic about this project and the
 \end{figure}
 
 \section{Test results and feedback}
-This section discusses both the test results and the informal feedback gathered during the sessions.
+\label{sec:uzgent_test_results_and_feedback}
+To evaluate the RAG system for practical value, we organized a test session where a few dozen healthcare professionals of UZGent asked the chatbot questions they would typically ask Zenya during their daily work. For these questions, the relevant documents are retrieved and an answer is generated. The healthcare professionals then evaluate the output by indicating which documents contained essential information and which questions were answered correctly. This section discusses both the test results and the informal feedback gathered during these sessions.
 
+\subsection{Objective results}
 Before going into the test results, some caveats must be pointed out. First of all, this test data is important for future use at the UZGent, as they want to use it to evaluate all possible competitors that claim they can do better than the current system, Zenya. This means a validate set is necessary to hand over to the competitor and a test set to keep for themselves. As the writer of this thesis is both the person gathering the data, making the split and also testing his system, this is something of a violation against best practices. Thus, the UZGent will have to trust us not to make any decisions based on the test set.
 
 The next problem, is that the test set turned out to be quite unclean. For example 20\% of the ground truth documents were derived from the context. While this would work if every tester followed the instructions perfectly, testers remain human and make mistakes. Thus, sometimes this derived ground truth is not actually right. Additionally, 8\% of the questions were left without any clue what the ground truth would be. Ideally, these questions should be revised by an unbiased person at the UZGent itself. This was done in a quick way, but further cleaning will be necessary.
@@ -196,6 +198,7 @@ Figure \ref{fig:chunk_rank_density} and \ref{fig:chunk_rank_cumulative_distribut
     \label{fig:chunk_rank_cumulative_distribution}
 \end{figure}
 
+\subsection{Informal feedback}
 The informal feedback provided great nuance to the objective feedback. The first and most important conclusion by most testers was that this system is not ready for production yet. As they were referring to the whole RAG system, this was a logical conclusion, given the large number of hallucinations. However, when asked about the retrieval only, the testers were more positive. Some were already convinced about the new model, while others still saw much work to be done. As a trend, the testers who work in a niche domain, were less convinced than the other ones. Interestingly, they said themselves that this problem could be very easily fixed by adding user information to the query. This means that a pediatrician should only get documents about children, or at least get them first. This information was not available, so it could not be implemented during the thesis. However, this is very important to be aware of for any future developer making retrievers for the UZGent.
 
 One particular anecdote about the informal feedback really stood out: a nurse said that they are usually looking for five minutes in the current system, Zenya, before finding the right document, if it is found at all. While this was the most extreme example, the sentiment of the other testers seemed to be similar. They claimed that in the current system, one needs to know what they are looking for exactly, before searching or else one will never find the right document. This is of course the opposite of how a good retrieval system should work. The main conclusion out of this is that the results in Figure \ref{fig:found_rate} are to be taken with a grain of salt. For a fair comparison of both systems, one should choose testers who do not know either system yet. This will probably shift the results towards "not found" in Zenya, possibly even indicating our RAG system as the winner. Such tests are future work though.
