@@ -12,10 +12,10 @@ There are many stand-alone techniques to do speculative decoding. Each technique
 \end{figure}
 
 \section{Research hypothesis}
-A common use case for LLMs is to use it in a RAG framework. In RAG, the context of the LLM is prefilled with documents that were searched in earlier steps. This context contains the facts that the LLM is expected to use in its answer. To improve factuality, the preprompt often contains explicit or implicit instructions to use or even copy the context. This is what Context-Aware Speculative Decoding will try to pick up on. When the LLM will copy long sequences of tokens from the context, a reasonable prediction could be made by just looking at the context. The hypothesis is that this yields long, good predictions, that are quite independent from neural-based methods.
+A common use case for LLMs is to use it in a RAG framework. As Section \ref{sec:rag} explains, RAG uses an LLM to answer questions based on some relevant document chunks, so the context of the LLM is prefilled with chunks before answering. This context contains the facts that the LLM is expected to use in its answer. To improve factuality, the preprompt often contains explicit or implicit instructions to use or even copy the context. This is what Context-Aware Speculative Decoding will try to pick up on. When the LLM will copy long sequences of tokens from the context, a reasonable draft could be made by just looking at the context. The hypothesis is that this yields long, good drafts, that are quite independent from neural-based methods.
 
 \section{Drafting method of CASD}
-CASD is a lightweight statistical method to generate speculative samples from the context itself. To do so, the last generated tokens are searched in the full context, as shown in \ref{fig:CASD_example_prompt}. When there are multiple matches, the top 2 are kept based on how long the match was. Then, up to 10 tokens after the match are copied as drafts. Finally, the drafts are merged with the drafts that EAGLE-2 has already made.
+CASD is a lightweight statistical method to generate speculative samples from the context itself. To do so, the last generated tokens are searched in the full context, as shown in Figure \ref{fig:CASD_example_prompt}. If at least one token corresponds to the last generated tokens, we call it a match. When there are multiple matches found in the context, the top 2 are kept based on how long the match was. Then, up to 10 tokens after the match are copied as drafts. Finally, the drafts are merged with those of EAGLE-2.
 
 \begin{figure}[h]
 	\centering
@@ -30,7 +30,7 @@ In this section, we analyze the performance of CASD, mainly comparing with EAGLE
 \subsection{Experimental setup}
 \textbf{Models.} The experiments include only Llama-3-8B-Instruct as an LLM, as only this model fit our following constraints. The first constraint is that of hardware: 8B is the largest model that fit on the used GPU. Since one of our benchmarks has Dutch content (UZGentRAG, see further), we also need a Dutch-capable LLM. Lastly, the SOTA baseline, EAGLE-2 also has to support the LLM. This yielded Llama-3-8B-Instruct as the chosen model for all experiments. 
 
-\textbf{Tasks.} CASD is evaluated on UZGentRAG benchmark (see further), SQuAD \cite{rajpurkar2016squad} and the classical speculative decoding benchmarks (GSM8K \cite{cobbe2021gsm8k}, HumanEval \cite{chen2021evaluating}, MT-bench \cite{zheng2023judging}, Natural Questions a.k.a. QA \cite{kwiatkowski2019natural} and CNN/DM \cite{nallapati2016abstractive}). All experiments were performed with batch size 1.
+\textbf{Tasks.} CASD is evaluated on our private UZGentRAG benchmark (see further), SQuAD \cite{rajpurkar2016squad} and the classical speculative decoding benchmarks (Alpaca \cite{alpaca}, GSM8K \cite{cobbe2021gsm8k}, HumanEval \cite{chen2021evaluating}, MT-bench \cite{zheng2023judging}, Natural Questions a.k.a. QA \cite{kwiatkowski2019natural} and CNN/DM \cite{nallapati2016abstractive}). All experiments were performed with batch size 1, conform with most related work \cite{kim2023speculative, leviathan2023fast, li2024eagle, zhou2023distillspec}.
 
 \textbf{Metrics.} CASD, being an augmenting method, focuses on improvements on the baseline speculator. The usual speculative decoding metrics, applied to CASD are:
 \begin{itemize}
@@ -39,7 +39,7 @@ In this section, we analyze the performance of CASD, mainly comparing with EAGLE
   \item \emph{Energy improvement}: The improvement in energy efficiency relative to the baseline method.
 \end{itemize}
 
-We approximate the energy consumption by the consumption of the GPU only. This is because our virtualized setup could not measure CPU and RAM energy accurately. However, the energy consumption of the whole system is primarily determined by the GPU, so this indicator should be reasonably accurate \cite{li2024unseen}.
+We approximate the energy consumption by the consumption of the GPU only. This is because our virtualized setup could not measure CPU and RAM energy accurately. However, the energy consumption of the whole system is primarily determined by the GPU \cite{li2024unseen}, so this indicator should be reasonably accurate.
 
 \subsection{UZGentRAG benchmark}
 We hypothesized that EAGLE-2 would underperform in multilingual settings and niche domains. To prove this, we had to go beyond the standard English speculative decoding benchmarks. However, low-resource languages such as Dutch have limited benchmarks available and for RAG use cases we did not find any. In collaboration with Ghent University Hospital (UZGent), we constructed UZGentRAG, a private niche RAG benchmark in Dutch and for the medical domain. This benchmark contains the queries logged from the daily work of doctors and nurses, by recording their questions to a chatbot. Internal UZGent documents found by the chatbot were combined with the query in a typical RAG prompt. These prompts form the benchmark, as that is the only data necessary to test a speculative decoding method.
@@ -68,18 +68,18 @@ Another interesting deduction we can make is that UZGentRAG successfully address
         \cline{3-8}
         & & Tokens/s & $\tau$ & Tokens/s & $\tau$ & Speedup & $\tau_{CASD} / \tau_{EAGLE-2}$ \\
         \hline
-        \multirow{2}{*}{RAG benchmarks} & UZGentRAG & 35 & 2.73 & 30 & 2.09 & 1.17 & 1.30 \\
-        & SQuAD             & 46 & 7.78 & 43 & 5.88 & 1.08 & 1.32 \\
+        \multirow{2}{*}{RAG benchmarks} & UZGentRAG & \textbf{35} & \textbf{2.73} & 30 & 2.09 & 1.17 & 1.30 \\
+        & SQuAD             & \textbf{46} & \textbf{7.78} & 43 & 5.88 & 1.08 & 1.32 \\
         \hline
-        \multirow{6}{*}{General benchmarks} & alpaca & 61 & 4.15 & 64 & 4.12 & 0.96 & 1.01 \\
-        & GSM8K             & 64 & 4.56 & 67 & 4.42 & 0.95 & 1.03 \\
-        & HumanEval         & 75 & 5.55 & 76 & 5.05 & 0.99 & 1.10 \\
-        & MT-bench          & 61 & 4.35 & 63 & 4.18 & 0.96 & 1.04 \\
-        & QA                & 52 & 3.56 & 54 & 3.53 & 0.95 & 1.01 \\
-        & CNN/DM            & 52 & 4.14 & 52 & 3.74 & 0.99 & 1.11 \\
+        \multirow{6}{*}{General benchmarks} & Alpaca & 61 & \textbf{4.15} & \textbf{64} & 4.12 & 0.96 & 1.01 \\
+        & GSM8K             & 64 & \textbf{4.56} & \textbf{67} & 4.42 & 0.95 & 1.03 \\
+        & HumanEval         & 75 & \textbf{5.55} & \textbf{76} & 5.05 & 0.99 & 1.10 \\
+        & MT-bench          & 61 & \textbf{4.35} & \textbf{63} & 4.18 & 0.96 & 1.04 \\
+        & QA                & 52 & \textbf{3.56} & \textbf{54} & 3.53 & 0.95 & 1.01 \\
+        & CNN/DM            & 52 & \textbf{4.14} & \textbf{52} & 3.74 & 0.99 & 1.11 \\
         \hline
     \end{tabular}
-    \caption{Performance of CASD compared with the baseline EAGLE-2. }
+    \caption{Performance of CASD compared with the baseline EAGLE-2. The best score is in bold.}
     \label{tab:performance_benchmarks}
 \end{table}
 
@@ -91,39 +91,39 @@ Another interesting deduction we can make is that UZGentRAG successfully address
   \label{fig:energy_vs_eagle}
 \end{figure}
 
-Figure \ref{fig:energy_vs_eagle} shows the improvement in GPU energy consumption. Interestingly, we see very similar numbers as for the speedups. This should not necessarily be the case and it depends on the speculator's speed-efficiency, power-efficiency and token-efficiency, so it is a pure coincidence. Practically, this means the conclusions are the same: applying CASD to RAG use cases yields improvements and applying it to other cases yields worse results. 
+Figure \ref{fig:energy_vs_eagle} shows the improvement in GPU energy consumption. Interestingly, we see very similar numbers as for the speedups. This should not necessarily be the case and it depends on the speculator's speed-efficiency, power-efficiency and token-efficiency, so it is a pure coincidence. Practically, this means the conclusions are the same: applying CASD to RAG use cases yields improvements and applying it to other cases generally yields worse results. As a side note, HumanEval did see a slowdown of 1\%, but also an energy improvement by 1\%, making it the only benchmark that has opposite results. However, the difference is insignificant and might as well be noise on the measurements.
 
 \subsection{Acceptance length}
 \begin{figure}[h]
   \centering
-  \captionsetup{justification=centering}
   \includegraphics[width=0.7\linewidth]{fig/acceptance_length.png}
-  \caption{Distribution of acceptance lengths with CASD. The acceptance length is attributed to the speculator that provided the longest accepted draft.}
+  \caption{Distribution of acceptance lengths with CASD. Note that this is one distribution, where the color coding attributes the accepted length to CASD or EAGLE-2. The acceptance length is attributed to the speculator that provided the longest accepted draft.}
   \label{fig:acceptance_length}
 \end{figure}
 
 To understand why CASD yields improvements on neural speculators, Figure \ref{fig:acceptance_length} shows how the acceptance length is distributed. EAGLE-2 works quite well and rather consistently: most often it has 4 to 7 tokens accepted. On the other hand, CASD's speculations show a strong peak at 11. So if CASD gives the best speculation, it is a high quality speculation for long lengths. This also explains intuitively why CASD works so well with neural speculators: CASD has occasional speculations that are extremely good, while the neural speculator works well consistently when nothing is copied. As a last remark, it might stand out that there is a hard cap at 7 and 11 for EAGLE-2 and CASD respectively. Both methods implement this cap to balance overhead with more accepted tokens.
 
 \subsection{Ablation study}
-\begin{table*}[t]
+
+CASD copies drafts from the entire context, but also from the tokens that were already generated. However, for the original problem statement (RAG), CASD only had to copy from the prompt and not from the answer that the LLM had generated up until that point. If CASD did that, it could be better if the LLM almost never copies from the generated tokens, as it has a smaller overhead. The opposite could as well be true, where CASD benefits now from an LLM repeating itself. The following empirical tests show whether the extra LLM tokens actually provide benefits: we compare our original CASD to CASD$_{prompt}$, which only considers prompt tokens.
+
+Table \ref{tab:ablation_benchmarks} shows how CASD$_{prompt}$ performs. For the most relevant benchmark, UZGentRAG, a slight improvement justifies the choice of CASD over CASD$_{prompt}$. For SQuAD, $\tau$ stayed the same and so did the throughput. Finally, MT-bench shows very similar performance. So it seems that CASD performs better than CASD$_{prompt}$, mostly on the UZGentRAG benchmark. As this benchmark contains longer answers than SQuAD, we intuitively think that the LLM starts repeating generated fragments more the longer the answer gets.
+
+\begin{table*}[h]
   \centering
   \begin{tabular}{ccc|cc|cc}
       & \multicolumn{2}{c}{CASD} & \multicolumn{2}{c}{CASD$_{prompt}$} & \multicolumn{2}{c}{EAGLE-2} \\
       \cline{2-7}
       & Tokens/s & $\tau$ & Tokens/s & $\tau$ & Tokens/s & $\tau$ \\
       \hline
-      UZGentRAG & 35 & 2.73 & 34 & 2.65 & 30 & 2.09 \\
-      SQuAD     & 46 & 7.78 & 46 & 7.78 & 43 & 5.88 \\
-      MT-bench  & 61 & 4.35 & 61 & 4.30 & 63 & 4.18 \\
+      UZGentRAG & \textbf{35} & \textbf{2.73} & 34 & 2.65 & 30 & 2.09 \\
+      SQuAD     & \textbf{46} & \textbf{7.78} & 46 & \textbf{7.78} & 43 & 5.88 \\
+      MT-bench  & 61 & \textbf{4.35} & 61 & 4.30 & \textbf{63} & 4.18 \\
       \hline
   \end{tabular}
-  \caption{Performance of CASD$_{prompt}$ compared to CASD and EAGLE-2 as the baseline.}
+  \caption{Performance of CASD$_{prompt}$ compared to CASD and EAGLE-2 as the baseline. The best score is indicated in bold.}
   \label{tab:ablation_benchmarks}
 \end{table*}
-
-CASD copies drafts from the entire context, but also from the tokens that were already generated. However, for the original problem statement (RAG), CASD only had to copy from the prompt and not from the answer that the LLM had generated up until that point. If CASD did that, it could be better if the LLM almost never copies from the generated tokens, as it has a smaller overhead. The opposite could as well be true, where CASD benefits now from an LLM repeating itself. The following empirical tests show whether the extra LLM tokens actually provide benefits: we compare our original CASD to CASD$_{prompt}$, which only considers prompt tokens.
-
-Table \ref{tab:ablation_benchmarks} shows how CASD$_{prompt}$ performs. For the most relevant benchmark, UZGentRAG, a slight improvement justifies the choice of CASD over CASD$_{prompt}$. For SQuAD, $\tau$ stayed the same and so did the throughput. Finally, MT-bench shows very similar performance. So it seems that CASD performs better than CASD$_{prompt}$, mostly on the UZGentRAG benchmark. As this benchmark contains longer answers than SQuAD, we intuitively think that the LLM starts repeating generated fragments more the longer the answer gets.
 
 \section{Further analysis}
 \label{sec:further_analysis}

@@ -30,3 +30,4 @@
 {"rule":"A_INFINITIVE","sentence":"^\\QThis means a validate set is necessary to hand over to the competitor and a test set to keep for themselves.\\E$"}
 {"rule":"STEPS_TO_DO","sentence":"^\\QThe first step to do proper machine learning in general, is to have a high quality validate and test set.\\E$"}
 {"rule":"FIRST_OF_ALL","sentence":"^\\QFirst of all, people become lazy and stop checking the sources, that is just a fact.\\E$"}
+{"rule":"INDEPENDENTLY_FROM_OF","sentence":"^\\QThe hypothesis is that this yields long, good drafts, that are quite independent from neural-based methods.\\E$"}
