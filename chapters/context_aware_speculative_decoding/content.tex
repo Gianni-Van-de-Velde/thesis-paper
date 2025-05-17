@@ -133,18 +133,25 @@ This section details the analysis that shows the reasoning behind some implement
 
 In CASD, we only take the top-2 matches according to match length. This implicitly assumes that longer matches are better and Figure \ref{fig:prob_casd_accept} validates this assumption. The first interesting feature is that the further to the right, the higher the value (typically), and this for all rows. This shows that the average accepted length grows longer with longer match lengths. But not only does this validate that longer matches generate better speculations, it also opens up an area of future work. Instead of taking the 10 next tokens of a match regardless of the match length, CASD could also work with adaptive length speculations. A good idea could be to put a threshold on a certain acceptance probability and only add tokens that have more chance of being accepted than that threshold. For completeness' sake, we also point out some details that might be confusing about this and the following plot. Firstly, at depth 0 the token is always accepted, because that is actually a token that is already accepted in our case. This is nothing more than an implementation detail inherited from the code of EAGLE-2, and it is kept for consistency. Another detail is that not all columns are filled in. This is because the plot was generated on a limited amount of data (400 samples from SQuAD) and the column for 9 match length did not contain a reliable amount of data. Similarly, the plot ends at 10 match length, because this is the longest match that we check for, anything longer is also mapped to 10. 
 
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\linewidth]{fig/prob_casd_accept.png}
-  \caption{The probability of a token being accepted for different match lengths and prediction depths. The match length is the number of tokens that corresponded between the last generated tokens and the matching substring in the context. The prediction depth indicates how many steps in the future the predicted token is.}
-  \label{fig:prob_casd_accept}
-\end{figure}
-
 The most important part for an augmenting method such as CASD to work is that the speculations are quite independent. The fact that CASD actually improved upon EAGLE-2 on RAG benchmarks already proves the independence, but Figure \ref{fig:prob_casd_eagle_overlap} does add some context as to why. The plot shows the chances of a token being speculated by both EAGLE-2 and CASD, again for different match lengths and prediction depths. The first thing to notice is that the further to the right, the higher the probabilities typically become and this for each row. What this means is that EAGLE-2 already has some notion of copying. The longer the text that was already copied, the more likely that EAGLE-2 will also predict the tokens that CASD predicts. Yet, we also see that the probabilities drop quite fast when the prediction depth grows larger. As EAGLE-2 does not predict beyond 7 depth, the chances are 0 there. And this is where the strength of CASD lies: it copies longer spans literally.
 
-\begin{figure}[h]
+\begin{landscape}
+
+\begin{figure}
   \centering
-  \includegraphics[width=\linewidth]{fig/prob_casd_eagle_overlap.png}
-  \caption{The probability of a token already being predicted by EAGLE-2. The axes have the same interpretation as Figure \ref{fig:prob_casd_accept}}
+  \captionsetup{width=0.55\linewidth}
+  \begin{tabular}{@{}l@{}@{}l@{}}
+    \includegraphics[width=.5\linewidth]{fig/prob_casd_accept.png} & \includegraphics[width=.5\linewidth]{fig/prob_casd_eagle_overlap.png} \\[-1cm]
+    \hspace{1cm} \parbox{.32\linewidth}{\small (a) CASD has long predictions of high quality, certainly when the match length is long. \newline} 
+    & \hspace{1cm} \parbox{.32\linewidth}{\small (b) For few steps into the future, CASD's tokens often overlap with EAGLE, but tokens deeper into the future barely overlap.}
+  \end{tabular}
+  \vspace{0.2cm}
+  \caption{
+    \textbf{Prediction depth:} how many steps in the future is the predicted token.
+    \textbf{Match length:} number of tokens that correspond between the last generated tokens and the match in the context. \\
+  }
+  \label{fig:prob_casd_accept}
   \label{fig:prob_casd_eagle_overlap}
 \end{figure}
+
+\end{landscape}
