@@ -5,12 +5,16 @@ Speculative decoding, a proven method, promises to generate the same answers fas
 
 \textbf{The main goal of this thesis is to develop a new speculator CASD, that augments the current SOTA to increase efficiency of LLMs in high-copy environments.} With the popularity of RAG \cite{k2view2025GenAI, menlov2025state}, such high-copy environments become more and more common and increasing LLM efficiency for those cases has the potential to make a large impact. To prove that a new method works, relevant benchmarks are necessary, but the number of RAG benchmarks is very limited. Even more, we found only one well known English benchmark, that can be adapted to be a RAG benchmark for speculative decoding \cite{rajpurkar2016squad}. To fill the gap in more niche benchmarks, \textbf{the second goal is to make a novel benchmark UZGentRAG, that contains real-world questions and context to evaluate speculative decoders on.} To gather realistic data, one needs a live RAG system that actual doctors can direct their questions to. As the UZGent is interested in a RAG application, \textbf{the third goal is to make a functioning RAG system at the UZGent}, as a case study. 
 
-With these goals in mind, the following research questions follow naturally.
+With these goals in mind, the following research questions follow naturally:
 
-\begin{itemize}
-    \item \textbf{RQ 1}: Could context improve speculative decoding? \\ RQ 1.1 Which energy gains does CASD make? \\ RQ 1.2 Which speedups does CASD deliver?
-    \item \textbf{RQ 2}: Does a real-world benchmark in niche domain show significantly different results from existing benchmarks in speculative decoding?
-    \item \textbf{RQ 3}: Can a RAG system provide additional value at UZGent?
-\end{itemize}
+\begin{tcolorbox}[colback=blue-ish-light,colframe=blue-ish,title=\textbf{Research Questions}, coltitle=white]
+    \textbf{RQ1:} Could context improve speculative decoding?
+    \begin{itemize}
+    \item RQ1.1: Which energy gains does CASD make?
+    \item RQ1.2: Which speedups does CASD deliver?
+    \end{itemize}
+    \textbf{RQ2:} Does a real-world benchmark in a niche domain show significantly different results from existing speculative decoding benchmarks? \\
+    \textbf{RQ3:} Can a RAG system provide additional value at UZGent? \\
+\end{tcolorbox}
 
 In this paper, the context is built up logically, before diving into the research questions. The structure is as follows: First, in Chapter \ref{sec:rag}, we summarize the relevant literature around RAG for the UZGent use case. Chapter \ref{sec:use_case_uzgent} applies this knowledge in the practical implementation of the RAG system. Chapter \ref{sec:speculative_decoding} describes speculative decoding, which is the main academic topic of this thesis. In Chapter \ref{sec:casd} we then introduce our new method, CASD, to improve speculative decoding. This is followed by Chapter \ref{sec:societal_impact} that looks in to the societal impact these results can have. Finally, Chapter \ref{sec:conclusion_future_work} formulates answers to the research questions and discusses the most important opportunities for future work.\\
