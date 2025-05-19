@@ -1,9 +1,15 @@
 \chapter{Deliverables to UZGent}
 
-In this thesis we worked together with UZGent and we made sure both parties benefited from the collaboration. From our side, we deliver the following data and documents to UZGent:
+In this thesis we worked together with UZGent and we made sure both parties benefited from the collaboration. In this section, we list the documentation, code and data that we deliver to UZGent.
 
-\begin{itemize}
-    \item RAG system setup guide. The guide contains all necessary steps to set up a vanilla Red Hat server, such that it can run the RAG system we developed.
-    \item Access to the RAG system GitHub and the frontend GitHub on demand.
-    \item Test session data. We held a test session to gather typical questions from healthcare professionals and the corresponding document in Zenya. This resulted in a validate and test set that UZGent can use to verify the performance of any retriever on Zenya data. This data was delivered in the form of CSVs.
-\end{itemize}
+\section{Documentation}
+The RAG application ran on the servers of UZGent. However, after the project the server was reclaimed for other purposes. This means the setup needs to happen again if UZGent decides to go further with the application and to help with that, we logged all commands that are necessary to set up the server again. After following the instructions, the requirements are installed, https is set up, the RAG API is live and the website is hosted on that server. This all works with the building blocks explained in Figure \ref{fig:architecture_docker}. The only thing that still needs to happen is to contact the networking person to open up the right ports of that server to the internal network of UZGent.
+
+\section{Code}
+The setup above requires access to the code on two GitHub repositories. One repository contains the code to run the RAG API. The other repository is for the web application. We grant access to the ICT department of UZGent on demand. 
+
+\section{Data}
+We held a test session to gather typical questions from healthcare professionals and the corresponding document in Zenya. This data shows how the system is currently used and allows for further ``in vitro'' experiments (as the experts of UZGent like to call it). By that, we mean that the usage of Zenya is not too dynamic and thus the test set can be used for experiments in the coming year(s), without further input required.
+
+The most straightforward use of this data is to evaluate retrievers, in order to find the optimal way of presenting the Zenya data to healthcare professionals. To do this properly, we split the data in a validate set and a test set. The provider of the retriever can use the validate set to tune its retriever specifically for the use case. Then, the UZGent can test the retriever with their withheld test set. Both the validate and test set were delivered in the form of CSVs, as this was most practical for UZGent.
+

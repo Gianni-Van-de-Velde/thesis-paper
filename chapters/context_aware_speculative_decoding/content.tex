@@ -143,16 +143,17 @@ The last plot, Figure \ref{fig:prob_casd_eagle_overlap} (c), shows where CASD ad
 
 \begin{figure}
   \centering
-  \captionsetup{width=0.55\linewidth}
+  \captionsetup{width=0.52\linewidth}
   \begin{tabular}{@{}l@{}@{}l@{}@{}l@{}}
     \includegraphics[width=.33\linewidth]{fig/prob_casd_accept.png} & \includegraphics[width=.33\linewidth]{fig/prob_casd_eagle_overlap.png} & \includegraphics[width=.30\linewidth, height=.371\linewidth]{fig/prob_casd_non_eagle_accept.png} \\[0.5cm]
-    \hspace{0.5cm} \parbox{.27\linewidth}{\small (a) CASD has long predictions of high quality, certainly for long match lengths. \newline} 
-    & \hspace{0.5cm} \parbox{.27\linewidth}{\small (b) For few steps into the future, CASD's tokens often overlap with EAGLE, but tokens deeper into the future barely overlap.}
-    & \hspace{0.5cm} \parbox{.27\linewidth}{\small (c) The tokens drafted by CASD and not by EAGLE-2 are accepted frequently, certainly for long match lengths.} 
+    \hspace{0.5cm} \parbox{.27\linewidth}{\small (a) CASD has long predictions of high quality, certainly for long match lengths. \newline \newline \newline} 
+    & \hspace{0.5cm} \parbox{.27\linewidth}{\small (b) For few steps into the future, CASD's tokens often overlap with EAGLE, but tokens deeper into the future barely overlap. So, EAGLE-2 already has some notion of copying, but only for the near future.}
+    & \hspace{0.5cm} \parbox{.27\linewidth}{\small (c) The tokens drafted by CASD and not by EAGLE-2 are accepted frequently, certainly for long match lengths. CASD gets most tokens accepted around depth 5, when augmenting EAGLE-2.} 
   \end{tabular}
   \vspace{0.2cm}
   \caption{
-    \textbf{Prediction depth:} how many steps in the future is the predicted token.
+    Analysis of CASD's predictive power and its interaction with EAGLE-2.\\
+    \textbf{Prediction depth:} how many steps in the future is the predicted token.\\
     \textbf{Match length:} number of tokens that correspond between the last generated tokens and the match in the context. \\
   }
   \label{fig:prob_casd_accept}
