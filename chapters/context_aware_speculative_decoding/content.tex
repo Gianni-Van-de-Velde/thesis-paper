@@ -2,7 +2,7 @@
 \chapter{Context-Aware Speculative Decoding}
 \label{sec:casd}
 
-There are many stand-alone techniques to do speculative decoding. Each technique tries to perform as good as it can by itself. However, what seems to be underexplored in the domain of speculative decoding is the possibility of augmenting techniques. An augmenting technique will use a strong baseline method and try to fill in the gaps, where the baseline model underperforms. This is shown in Figure \ref{fig:spec_dec_casd_augment}. To have a good augmenting model, it must be fundamentally different from the baseline model. We present Context-Aware Speculative Decoding (CASD), which is such an augmenting technique that does not work well by itself, but its drafts help well where the current SOTA (EAGLE-2 \cite{li2024eagle}) underperforms.
+There are many stand-alone techniques to do speculative decoding. Each technique tries to perform as good as it can by itself. However, what seems to be underexplored in the domain of speculative decoding is the possibility of augmenting techniques. An augmenting technique will use a strong baseline method and try to fill in the gaps, where the baseline model underperforms. This principle is shown in Figure \ref{fig:spec_dec_casd_augment}. To have a good augmenting model, it must be fundamentally different from the baseline model. We present Context-Aware Speculative Decoding (CASD), which is such an augmenting technique that does not work well by itself, but its drafts help well where the current SOTA (EAGLE-2 \cite{li2024eagle}) underperforms.
 
 \begin{figure}[h]
 	\centering
@@ -42,7 +42,7 @@ In this section, we analyze the performance of CASD, mainly comparing with EAGLE
 We approximate the energy consumption by the consumption of the GPU only. This is because our virtualized setup could not measure CPU and RAM energy accurately. However, the energy consumption of the whole system is primarily determined by the GPU \cite{li2024unseen}, so this indicator should be reasonably accurate.
 
 \subsection{UZGentRAG benchmark}
-We hypothesized that EAGLE-2 would underperform in multilingual settings and niche domains. This is because EAGLE-2 is trained on mostly English data in rather general domains (ShareGPT). That means niche domains are out-of-distribution and neural networks are known to have bad performance on out-of-distribution input. We must note that the neural network of EAGLE-2 works on top of the features of the LLM, so if the LLM is trained to have language-agnostic features that would not be the case. However, the latest LLMs are typically not trained in that way and thus the problem remains.
+We hypothesized that EAGLE-2 would underperform in multilingual settings and niche domains. This is because EAGLE-2 is trained on mostly English data in rather general domains (ShareGPT \cite{shareGPT}). That means niche domains are out-of-distribution and neural networks are known to have bad performance on out-of-distribution input. We must note that the neural network of EAGLE-2 works on top of the features of the LLM, so if the LLM is trained to have language-agnostic features that would not be the case. However, the latest LLMs are typically not trained in that way and thus the problem remains.
 
 To prove our hypothesis, we had to go beyond the standard English speculative decoding benchmarks. However, low-resource languages such as Dutch have limited benchmarks available and for RAG use cases we did not find any. That is why we made our own benchmark. As mentioned in Section \ref{sec:uzgent_test_results_and_feedback}, we held a test session at UZGent. In that session, we not only evaluated the RAG system, but we also constructed UZGentRAG, a private niche RAG benchmark in Dutch and for the medical domain. This benchmark contains the queries logged from the daily work of doctors and nurses, by recording their questions to a chatbot. Internal UZGent documents found by the chatbot were combined with the query in a typical RAG prompt. These prompts form the benchmark, as that is the only data necessary to test a speculative decoding method.
 
@@ -57,7 +57,7 @@ To prove our hypothesis, we had to go beyond the standard English speculative de
 
 Figure \ref{fig:speedup_vs_eagle} shows the comparison between CASD and EAGLE-2. The most relevant benchmarks are the RAG benchmarks, UZGentRAG and SQuAD, for which CASD achieved a speedup of 1.17 and 1.08 respectively. This is quite interesting, because both benchmarks are RAG use cases, yet the results differ strongly. We hypothesize that the Dutch UZGentRAG is harder for EAGLE-2, so it is easier for CASD to find better continuations.
 
-Next to the RAG benchmarks, we also list the general benchmarks. Since these are not RAG-based, and EAGLE-2 was designed for these settings, performance is now greater for EAGLE-2. The key takeaway here is that even when applying CASD to non-RAG input results it still has limited overhead (1-5\%).
+Next to the RAG benchmarks, we also list the general benchmarks. Since these are not RAG-based, and EAGLE-2 was designed for these settings, performance is now greater for EAGLE-2. The key takeaway here is that even when applying CASD to non-RAG input, it still has limited overhead (1-5\%).
 
 The full details of the performance can be seen in Table \ref{tab:performance_benchmarks}. The first thing that stands out is that the relative increase of the number of correctly speculated tokens ($\tau_{CASD} / \tau_{EAGLE-2}$) is higher for SQuAD than for UZGentRAG. In other words, the number of LLM calls were reduced most for SQuAD and nevertheless the speedup is much higher for UZGentRAG. This likely means that SQuAD had many more substring matches, increasing the overhead of CASD and thus slowing down the total system.
 
@@ -119,7 +119,7 @@ Table \ref{tab:ablation_benchmarks} shows how CASD$_{prompt}$ performs. For the 
       & Tokens/s & $\tau$ & Tokens/s & $\tau$ & Tokens/s & $\tau$ \\
       \hline
       UZGentRAG & \textbf{35} & \textbf{2.73} & 34 & 2.65 & 30 & 2.09 \\
-      SQuAD     & \textbf{46} & \textbf{7.78} & 46 & \textbf{7.78} & 43 & 5.88 \\
+      SQuAD     & \textbf{46} & \textbf{7.78} & \textbf{46} & \textbf{7.78} & 43 & 5.88 \\
       MT-bench  & 61 & \textbf{4.35} & 61 & 4.30 & \textbf{63} & 4.18 \\
       \hline
   \end{tabular}

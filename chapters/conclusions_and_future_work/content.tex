@@ -2,7 +2,7 @@
 \chapter{Conclusions and future work}
 \label{sec:conclusion_future_work}
 
-In this thesis, we introduced CASD, a model-agnostic augmentation to any modern speculator for speculative decoding. Multiple benchmarks proved its performance in RAG scenarios, while overhead for other scenarios remains limited. We introduced one of those benchmarks ourselves; UZGentRAG is made of real-world questions doctors asked a RAG chatbot, which we implemented at UZGent. To summarize the findings, we answer the research questions posed in the introduction:
+In this thesis, we introduced CASD, a model-agnostic augmentation to any modern speculator for speculative decoding. Multiple benchmarks proved its performance in RAG scenarios, while overhead for other scenarios remains limited. We introduced one of those benchmarks ourselves; UZGentRAG is made of real-world questions that healthcare professionals asked a RAG chatbot, which we implemented at UZGent. To summarize the findings, we answer the research questions posed in the introduction:
 
 \begin{tcolorbox}[colback=blue-ish-light,colframe=blue-ish,title=\textbf{RQ1:} Could context improve speculative decoding?, coltitle=white]
     Yes it can. In RAG use cases, our new method CASD successfully improves speculative decoding, by drafting copies from the context. As UZGentRAG and SQuAD are benchmarks of the intended use cases, only these are mentioned below.
@@ -21,7 +21,7 @@ Exploring this question led to some interesting insights. We found that the curr
 The answer to this question is important, not only for the academic world, but also for real-world applications. As we show that the performance of speculators can differ significantly for a niche domain, a one-size-fits-all approach with speculators might not be optimal. While CASD is specifically made for RAG, it is domain-agnostic of the content of that RAG system, solving a part of this difficulty.
 
 \begin{tcolorbox}[colback=blue-ish-light,colframe=blue-ish,title=\textbf{RQ3:} Can a RAG system provide additional value at UZGent?, coltitle=white]
-    Partially. The retriever has potential to save healthcare professionals much time that they could be spending on helping their patients. Yet, the generate step of RAG is currently no added value and it will probably require significant time, effort and money to extract value from such generator.
+    Partially. The retriever has potential to save healthcare professionals much time that they could spend helping their patients. Yet, the generate step of RAG is currently no added value and it will probably require significant time, effort and money to extract value from such generator.
 \end{tcolorbox}
 
 While the full RAG pipeline will probably not provide value for UZGent in the foreseeable future, working with AI there opened up interesting discussions. We found that UZGent, as probably many hospitals, has untapped potential to use AI in an ethical and safe manner. We believe that AI-based retrievers are the low-hanging fruit for multiple applications at UZGent, while being ethical and safe.
