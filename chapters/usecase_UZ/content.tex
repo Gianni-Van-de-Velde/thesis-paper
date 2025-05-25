@@ -7,7 +7,7 @@ To put the theory of speculative decoding into practice, this thesis looks at a 
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=\linewidth]{fig/zenya.png}
+	\fbox{\includegraphics[width=\linewidth]{fig/zenya.png}}
 	\caption{Screenshot of Zenya, the current system healthcare professionals use to search procedure documents.}
 	\label{fig:zenya}
 \end{figure}
@@ -52,7 +52,7 @@ In the preprocessing step, the goal is to extract the text from documents. To st
 \end{figure}
 
 \begin{figure}[H]
-    \centerline{\includegraphics[width=0.5\linewidth]{fig/pdf_clutter.png}}
+    \centerline{\fbox{\includegraphics[width=0.5\linewidth]{fig/pdf_clutter.png}}}
     \caption{Example of a non-informative pdf page in Zenya. Despite being almost empty, the pdf parser extracts over 2500 hidden characters.}
     \label{fig:pdf_clutter}
 \end{figure}
@@ -88,7 +88,7 @@ To start, we first need to find a good embedding model. A pragmatic approach is 
 With this setup, we ran the first tests to analyze the performance and the weak spots of the current model. A recurring error was that the embedder did not match on chunks that were in the middle of a large explanation. A typical example would be a document where the title contains the important keywords such as "hematology" or "oncology". As these documents were made for human readers, the rest of the full pdf assumes that the reader remembers that context. An example of a chunk with too little context inside is shown in Figure \ref{fig:out_of_context_zenya_doc}. So the chunks in se do not contain enough information to properly match with the query. As a rather quick solution, we appended the title to each chunk before being embedded. The structure is as follows: \verb|f'Titel: {title}\nTekst: {cleaned_text}|'. This simple method yielded approximately a 0.08 gain in MRR, which is an enormous boost.
 
 \begin{figure}[h]
-    \centerline{\includegraphics[width=1\linewidth]{fig/out_of_context_zenya_doc.png}}
+    \centerline{\fbox{\includegraphics[width=0.8\linewidth]{fig/out_of_context_zenya_doc.png}}}
     \caption{Chunk of a pdf with the title ``Zorgpad invasieve blaastumor robotgeassisteerde cystectomie met neo-blaas''. The chunk does not contain enough information to place it into context. The title clearly adds some necessary context.}
     \label{fig:out_of_context_zenya_doc}
 \end{figure}
@@ -158,26 +158,36 @@ Before going into the test results, some caveats must be pointed out. First of a
 
 The next problem, is that the test set turned out to be quite unclean. For example 20\% of the ground truth documents were derived from the context. While this would work if every tester followed the instructions perfectly, testers remain human and make mistakes. Thus, sometimes this derived ground truth is not actually right. Additionally, 8\% of the questions were left without any clue what the ground truth would be. Ideally, these questions should be revised by an unbiased person at the UZGent itself. This was done in a quick way, but further cleaning will be necessary.
 
-That being said, the results are a mix of multiple interpretations that try to keep these issues into account. First, the direct results of the full test session are given. These yield the most pessimistic view, because of the noise discussed before and there is no bias towards the writer's opinion at all. Figure \ref{fig:found_rate} shows the most high level question: did the user find the answer or not? The first thing that becomes clear is that the answer is almost always found in Zenya. The discussion about why this is biased is given in the paragraph about the informal feedback. The second conclusion is that 54\% of the questions were properly answered by the RAG system. This is not exactly a great result, but let us consider all metrics before drawing conclusions. 
+That being said, the results are a mix of multiple interpretations that try to keep these issues into account. First, the direct results of the full test session are given. These yield the most pessimistic view, because of the noise discussed before and there is no bias towards the writer's opinion at all. Table \ref{tab:found_rate} shows the most high level question: did the user find the answer or not? The first thing that becomes clear is that the answer is almost always found in Zenya. The discussion about why this is biased is given in the paragraph about the informal feedback. The second conclusion is that 54\% of the questions were properly answered by the RAG system. This is not exactly a great result, but let us consider all metrics before drawing conclusions. 
 
 Figure \ref{fig:liked_docs_per_convo} analyzes how many unique liked documents a conversation had. A conversation is defined as a sequence of messages to the chatbot until the healthcare professional is comfortable with the answer and they would use the information in real life. A liked document is a document in which the healthcare professional found essential information to answer the question. The most important insight in the writer's opinion is that about 35\% of the conversations had no right document found, yet 46\% of the conversations were labeled as "answer not found". This further indicates the need for cleaning of the seemingly inconsistent dataset. While many other conclusions could be drawn here, the discussion is limited to the essentials. This is because focusing on the details could be focusing on the noise as described in the caveats. On a finer granularity, Figure \ref{fig:liked_docs} looks at the number of liked documents per question. The first interesting feature is that sometimes multiple documents are labeled as good. This information is invaluable to the UZGent, as they expected one document to always suffice. This could show the existence duplicate information across documents or it could indicate complexer questions have their answer scattered across documents. A detailed investigation of this is left to the experts of the Zenya data at the UZGent. Next to that, it can be seen that 48\% of the questions did not get a relevant document returned. This number does not really impress, though it is the pessimistic view of course.
 
-\begin{figure}[H]
-    \centerline{\includegraphics[width=0.9\linewidth]{fig/RAG_found_plot.png}}
-    \caption{The distribution of all conversations, indicating whether the answer was found or not. This is illustrated for both the RAG system and the old system, Zenya.}
-    \label{fig:found_rate}
-\end{figure}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{l|cc}
+     & Not found with RAG & Found with RAG \\
+    \hline
+    Found with Zenya  & 39 & 50 \\
+    Not found with Zenya & 4  & 1  \\
+    \end{tabular}
+    \caption{The distribution of all conversations, indicating whether the answer was found or not. This is shown for both the RAG system and the old system, Zenya.}
+    \label{tab:found_rate}
+\end{table}
 
 \begin{figure}[H]
-    \centerline{\includegraphics[width=0.7\linewidth]{fig/RAG_nr_correct_in_conversation.png}}
+\centering
+\begin{minipage}{0.48\linewidth}
+    \centerline{\includegraphics[width=\linewidth]{fig/RAG_nr_correct_in_conversation.png}}
     \caption{Distribution of the number of unique correct documents found in a whole conversation. 0 means that no relevant document was found before the conversation was finished. If 1 or more correct documents were found (liked), it was a successful conversation.}
     \label{fig:liked_docs_per_convo}
-\end{figure}
-
-\begin{figure}[H]
-    \centerline{\includegraphics[width=0.7\linewidth]{fig/RAG_nr_top_3.png}}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\linewidth}
+    \vspace{12pt}
+    \centerline{\includegraphics[width=\linewidth]{fig/RAG_nr_top_3.png}}
     \caption{Distribution of the number of unique correct documents found per individual message. This is similar to the previous plot, but on the level of individual messages. If more than 1 document was correct (liked), it means that the question required parts from multiple documents to answer correctly and completely.}
     \label{fig:liked_docs}
+\end{minipage}
 \end{figure}
 
 While the direct results are the most unfiltered, multiple red flags indicate that the statistics are not extremely reliable. For this reason, we filtered out the noise as follows, trying to remain completely unbiased in the process. All messages without any possible way of deducting the right document were left out, as approved by the UZGent. Combined with some manual labeling by the UZGent, the following results should be representative.
@@ -185,23 +195,25 @@ While the direct results are the most unfiltered, multiple red flags indicate th
 Figure \ref{fig:chunk_rank_density} and \ref{fig:chunk_rank_cumulative_distribution} show the same information with different emphasis: how the rank of the first relevant document is distributed. Figure \ref{fig:chunk_rank_density} shows the density. This visualization shows very well how most queries find the right document in the earlier ranks. When a document was not in the top 10, the chances clearly drop that the document is found at all. An important note to make is that a document not found is displayed as the maximal rank: 50, because by then we expect the healthcare professional to never find it. With this information, one can see that about 10\% of the documents was totally not found. Figure \ref{fig:chunk_rank_cumulative_distribution} shows the cumulative distribution. This representation shows better what portion was already found by rank x. This shows the top 3 documents already have the right one 0.69\% of the time. We mention the Hit@3, because if the correct document is so highly ranked, it could be considered a perfect retrieval. The Hit@7 is 77\%, which again means 77\% of the times we have the right document in the top 7. We chose Hit@7, because after a Zenya query, the healthcare professional sees 7 documents without scrolling any further. 90\% is found in the top 50 documents and as said before, 10\% are not found at all. The Hit@50 mostly shows how often a healthcare professional could find a document at all, because they do not have time to scan beyond 50 titles.
 
 \begin{figure}[H]
-    \captionsetup{justification=centering}
-    \centerline{\includegraphics[width=0.7\linewidth]{fig/rag_distribution.png}}
+\centering
+\begin{minipage}{0.48\linewidth}
+    \centerline{\includegraphics[width=\linewidth]{fig/rag_distribution.png}}
     \caption{Distribution of the rank of the first correct document. More density to the left is better.}
     \label{fig:chunk_rank_density}
-\end{figure}
-
-\begin{figure}[H]
-    \captionsetup{justification=centering}
-    \centerline{\includegraphics[width=0.7\linewidth]{fig/rag_cumulative_doc_rank.png}}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\linewidth}
+    \vspace{24pt}
+    \centerline{\includegraphics[width=\linewidth]{fig/rag_cumulative_doc_rank.png}}
     \caption{Cumulative distribution of the rank of the first correct document, where the value shows the chance that a relevant document was somewhere in the top-k documents. Higher values are better.}
     \label{fig:chunk_rank_cumulative_distribution}
+\end{minipage}
 \end{figure}
 
 \subsection{Informal feedback}
 The informal feedback provided great nuance to the objective feedback. The first and most important conclusion by most testers was that this system is not ready for production yet. As they were referring to the whole RAG system, this was a logical conclusion, given the large number of hallucinations. However, when asked about the retrieval only, the testers were more positive. Some were already convinced about the new model, while others still saw much work to be done. As a trend, the testers who work in a niche domain, were less convinced than the other ones. Interestingly, they said themselves that this problem could be very easily fixed by adding user information to the query. This means that a pediatrician should only get documents about children, or at least get them first. This information was not available, so it could not be implemented during the thesis. However, this is very important to be aware of for any future developer making retrievers for the UZGent.
 
-One particular anecdote about the informal feedback really stood out: a nurse said that they are usually looking for five minutes in the current system, Zenya, before finding the right document, if it is found at all. While this was the most extreme example, the sentiment of the other testers seemed to be similar. They claimed that in the current system, they need to know what they are looking for exactly, before searching or else they will never find the right document. This is of course the opposite of how a good retrieval system should work. The main conclusion out of this is that the results in Figure \ref{fig:found_rate} are to be taken with a grain of salt. For a fair comparison of both systems, one should choose testers who do not know either system yet. This will probably shift the results towards "not found" in Zenya, possibly even indicating our RAG system as the winner. Such tests are future work though.
+One particular anecdote about the informal feedback really stood out: a nurse said that they are usually looking for five minutes in the current system, Zenya, before finding the right document, if it is found at all. While this was the most extreme example, the sentiment of the other testers seemed to be similar. They claimed that in the current system, they need to know what they are looking for exactly, before searching or else they will never find the right document. This is of course the opposite of how a good retrieval system should work. The main conclusion out of this is that the results in Table \ref{tab:found_rate} are to be taken with a grain of salt. For a fair comparison of both systems, one should choose testers who do not know either system yet. This will probably shift the results towards "not found" in Zenya, possibly even indicating our RAG system as the winner. Such tests are future work though.
 
 Another type of feedback was implicit. Some testers asked how to pose their questions or just struggled to find a good question by themselves. This means asking a logical, natural language question is not as easy as first thought. Now, it must be said that the testers were biased. As they are Zenya experts that were trained for years to use only keywords, giving a natural language question to a computer just felt off for them.
 

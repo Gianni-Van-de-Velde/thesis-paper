@@ -28,7 +28,7 @@ CASD is a lightweight statistical method to generate speculative samples from th
 In this section, we analyze the performance of CASD, mainly comparing with EAGLE-2.
 
 \subsection{Experimental setup}
-\textbf{Models.} The experiments include only Llama-3-8B-Instruct as an LLM, as only this model fit our following constraints. The first constraint is that of hardware: 8B is the largest model that fit on the used GPU. Since one of our benchmarks has Dutch content (UZGentRAG, see further), we also need a Dutch-capable LLM. Lastly, the SOTA baseline, EAGLE-2 also has to support the LLM. This yielded Llama-3-8B-Instruct as the chosen model for all experiments. 
+\textbf{Models.} The experiments include only Llama-3-8B-Instruct \cite{grattafiori2024llama} as an LLM, as only this model fit our following constraints. The first constraint is that of hardware: 8B is the largest model that fit on the used GPU. Since one of our benchmarks has Dutch content (UZGentRAG, see further), we also need a Dutch-capable LLM. Lastly, the SOTA baseline, EAGLE-2 also has to support the LLM. This yielded Llama-3-8B-Instruct as the chosen model for all experiments. 
 
 \textbf{Tasks.} CASD is evaluated on our private UZGentRAG benchmark (see further), SQuAD \cite{rajpurkar2016squad} and the classical speculative decoding benchmarks (Alpaca \cite{alpaca}, GSM8K \cite{cobbe2021gsm8k}, HumanEval \cite{chen2021evaluating}, MT-bench \cite{zheng2023judging}, Natural Questions a.k.a. QA \cite{kwiatkowski2019natural} and CNN/DM \cite{nallapati2016abstractive}). All experiments were performed with batch size 1, conform with most related work \cite{kim2023speculative, leviathan2023fast, li2024eagle, zhou2023distillspec}.
 
@@ -45,6 +45,103 @@ We approximate the energy consumption by the consumption of the GPU only. This i
 We hypothesized that EAGLE-2 would underperform in multilingual settings and niche domains. This is because EAGLE-2 is trained on mostly English data in rather general domains (ShareGPT \cite{shareGPT}). That means niche domains are out-of-distribution and neural networks are known to have bad performance on out-of-distribution input. We must note that the neural network of EAGLE-2 works on top of the features of the LLM, so if the LLM is trained to have language-agnostic features that would not be the case. However, the latest LLMs are typically not trained in that way and thus the problem remains.
 
 To prove our hypothesis, we had to go beyond the standard English speculative decoding benchmarks. However, low-resource languages such as Dutch have limited benchmarks available and for RAG use cases we did not find any. That is why we made our own benchmark. As mentioned in Section \ref{sec:uzgent_test_results_and_feedback}, we held a test session at UZGent. In that session, we not only evaluated the RAG system, but we also constructed UZGentRAG, a private niche RAG benchmark in Dutch and for the medical domain. This benchmark contains the queries logged from the daily work of doctors and nurses, by recording their questions to a chatbot. Internal UZGent documents found by the chatbot were combined with the query in a typical RAG prompt. These prompts form the benchmark, as that is the only data necessary to test a speculative decoding method.
+
+While we cannot make the entire dataset public, we are allowed to give some insights. Table \ref{tab:uzgentrag_benchmark} shows some relevant statistics of UZGentRAG. The number of prompts of UZGentRAG is rather limited for a benchmark, however we see that EAGLE-2 uses 80 questions per benchmark and for speculative decoding that order of magnitude seems acceptable. That is also the reason our RAG adaptation of SQuAD was capped at 80 questions. The prompt length might also surprise, because SQuAD has rather large prompts. This is because the adaptation required few-shot prompting to achieve satisfactory answers from the LLM and those few shots take up some space in every prompt. For the length in tokens, we used the Llama 3 \cite{grattafiori2024llama} tokenizer, consistent with our experiments later. The last metric, BLEU, is good at measuring how much is copied between context and answer; exactly what CASD needs. It is clear that UZGentRAG is often copying from the context, but SQuAD copies even more. As this thesis is not about the BLEU score, we do not further elaborate on how this metric checks for copying. For reproducibility, it needs to be said that we edited the metric to have no brevity penalty as this is not relevant to our use case.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{l|cc}
+         & UZGentRAG & SQuAD (RAG) \\
+        \hline
+        \# prompts & 165 & 80 \\
+        \# documents per prompt & 3 & 1 \\ 
+        mean prompt length & 2420 char - 780 tokens & 2947 char - 615 tokens\\
+        mean answer length & 849 char - 83 tokens & 83 char - 18 tokens\\
+        %BLEU score & 0.06 & 0.0000003\\
+        BLEU score (no brevity penalty) & 0.25 & 0.64\\
+    \end{tabular}
+    \caption{Statistics of UZGentRAG benchmark, compared with the most similar benchmark: SQuAD (adapted for RAG with speculative decoding).}
+    \label{tab:uzgentrag_benchmark}
+\end{table}
+
+In order to give some idea what a typical UZGentRAG prompt might look like, one example is given below. It always starts with a role description. Then the documents are given, split by ``---''. Finally, the question from the user is added.
+
+\begin{wrapverbatim}
+[begin context]
+Jij bent een dokter. Jij kent alle medische procedures van het UZGent.
+[einde context]
+[begin documenten]
+obij verhoogde nuchtere of at random glycemie: bijkomend bepalen HbA1c
+ 
+4.5 Diagnostiek cont'd 
+Beeldvorming 
+-Hypofyse:
+oI.g.v. anders onverklaarde hoofdpijn, gezichtsvelduitval (met name uitval lateraal), 
+hormonaal bilan suggestief voor hypofysitis / hypopituïtarisme : dringende MRI hypofyse 
+(hypofysitis? RIP?), in overleg met MRI radioloog van wacht.
+oZo normale MRI en sterk suggestief klinisch beeld, nieuwe MRI na 1 maand.
+ 
+-Schildklier:
+oBij thyreotoxicosis, pijnlijke schildklieropzetting - te plannen via polikliniek Endocrinologie 
+(urgente poli-afspraak via D22137, na overleg met endocrinoloog van wacht).
+5. Beleid en verloop
+5.1 Behandeling hypothyreose
+Graad
+ 
+Graad 1
+(TSH < 10 mU/L): 
+ 
+Graad 2-3
+(TSH > 10 mU/L ): Graad 4
+ 
+ 
+Behandeling
+ 
+-Controle na 6 weken;
+
+---
+
+-Labo:
+oHbA1c
+oBloedgroep en Indirecte Coombs
+oEPD >  Plaatsen van Orders > Subset Klinische biologie Gyn/Materniteit > Prenataal 1ste 
+consult
+o(NB: enkel bepalen wat nog niet bekend is).
+oZo combinatietest gewenst: EPD >  Plaatsen van Orders > Subset Klinische biologie 
+Gyn/Materniteit > Combinatietest 1ste trimester
+oZo bekende schildklierpathologie: (zie richtlijn "Schildklierlijden en zwangerschap")
+-Bepaal ook FT4, FT3.
+-Bij gekende Morbus Graves: bepaal TSI-antilichamen (belang voor foetale en neonatale 
+opvolging).
+-Bij hypothyreoïdie en bekende diagnose Morbus Graves: geen verdere bepalingen van 
+antistoffen nodig.
+-Bij onduidelijke diagnose: bepaal TPO- en TSI-antilichamen.
+-Bij gekende hypothyreoïdie: verhoog dosis levothyroxine met 25 tot 50\%
+
+---
+
+- Inname levothyroxine en zwangerschapsvitamines/ijzersuppletie met minstens 2 uur 
+tussen (ivm verminderde absorptie bij gebruik met ijzerbevattende supplementen)
+Nieuwe diagnose hypothyreoïdie
+- Zie flowchart nieuwe diagnose hypothyreoïdie
+- Indien substitutie aangewezen is, start een lage dosis levothyroxine bvb 50mcg per 
+dag.
+Gekende hypothyreoïdie
+- Anamnese bij 1ste consultatie: Hoe lang bestaand? Ontstaan? Oorzaak? Uitsluiten 
+behandelde Morbus Graves. Behandeling?
+- Bij een positieve zwangerschapstest dosis met 25\% verhogen (dit kan vb. door 2 van 
+de 7 dagen van de week een dubbele dosis in te nemen).
+- Controle bij 1e bloedafname in de zwangerschap:
+- Bepaling van TSH, vrij-T4 en vrij-T3
+- Bepaling van TSI i.g.v. iatrogene hypothyreoïdie bij ziekte van Graves of bij
+[einde documenten]
+[begin vraag]
+Wat moet ik doen bij een graad 1 immuun-gerelateerde hypothyroïdie?
+[einde vraag]
+[begin antwoord]
+
+\end{wrapverbatim}
+
 
 \subsection{Performance of CASD}
 \begin{figure}[h]
@@ -99,11 +196,11 @@ Figure \ref{fig:energy_vs_eagle} shows the improvement in GPU energy consumption
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.7\linewidth]{fig/acceptance_length.png}
-  \caption{Distribution of acceptance lengths with CASD. Note that this is one distribution, where the color coding attributes the accepted length to CASD or EAGLE-2. The acceptance length is attributed to the speculator that provided the longest accepted draft.}
+  \caption{Distribution of acceptance lengths with CASD augmenting EAGLE-2. The tokens that are generated by copying are highlighted in blue, while the gray tokens were generated by EAGLE-2.}
   \label{fig:acceptance_length}
 \end{figure}
 
-To understand why CASD yields improvements on neural speculators, Figure \ref{fig:acceptance_length} shows how the acceptance length is distributed. EAGLE-2 works quite well and rather consistently: most often it has 4 to 7 tokens accepted. On the other hand, CASD's speculations show a strong peak at 11. So if CASD gives the best speculation, it is a high quality speculation for long lengths. This also explains intuitively why CASD works so well with neural speculators: CASD has occasional speculations that are extremely good, while the neural speculator works well consistently when nothing is copied. As a last remark, it might stand out that there is a hard cap at 7 and 11 for EAGLE-2 and CASD respectively. Both methods implement this cap to balance overhead with more accepted tokens.
+To understand why CASD yields improvements on neural speculators, Figure \ref{fig:acceptance_length} shows how the acceptance length is distributed. EAGLE-2 works quite well and rather consistently: most often it has 4 to 7 tokens accepted. On the other hand, CASD's added speculations show a strong peak at 11. So if CASD gives the best speculation, it is a high quality speculation for a long length. This also explains intuitively why CASD works so well with neural speculators: CASD has occasional speculations that are extremely good, while the neural speculator works well consistently when nothing is copied. As a last remark, it might stand out that there is a hard cap at 7 and 11 for EAGLE-2 and CASD respectively. Both methods implement this cap to balance overhead with more accepted tokens.
 
 \subsection{Ablation study}
 

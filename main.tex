@@ -18,6 +18,9 @@
 \usepackage{placeins}
 \usepackage{pdflscape}
 
+\usepackage{fvextra}
+\DefineVerbatimEnvironment{wrapverbatim}{Verbatim}{breaklines=true}
+
 \definecolor{orange-ish}{HTML}{ff9900}
 \definecolor{blue-ish}{HTML}{4285f4}
 \definecolor{blue-ish-light}{HTML}{c9daf8}
@@ -28,10 +31,6 @@
   linkcolor    = black,    % Colour of internal links
   citecolor    = blue      % Colour of citations
 }
-% Changelog
-% Figures of density of correct document in UZ part.
-% Placed MRR explanation somewhere else
-% TODO fix uniforme quoting stijl in paper en thesis
 
 
 \setlength{\parindent}{0pt}
@@ -39,6 +38,8 @@
 \titlespacing*{\section}{0pt}{\dimexpr\parskip-1pt}{\parskip}
 \titlespacing*{\subsection}{0pt}{\dimexpr\parskip-1pt}{\parskip}
 \titlespacing*{\subsubsection}{0pt}{\dimexpr\parskip-1pt}{\parskip}
+
+\setlength\fboxsep{0pt}
 
 \title{\LARGE Context-Aware Speculative Decoding for Retrieval Augmented
 Generation with a case study at UZGent}
