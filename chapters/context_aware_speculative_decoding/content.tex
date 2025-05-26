@@ -2,7 +2,7 @@
 \chapter{Context-Aware Speculative Decoding}
 \label{sec:casd}
 
-There are many stand-alone techniques to do speculative decoding. Each technique tries to perform as good as it can by itself. However, what seems to be underexplored in the domain of speculative decoding is the possibility of augmenting techniques. An augmenting technique will use a strong baseline method and try to fill in the gaps, where the baseline model underperforms. This principle is shown in Figure \ref{fig:spec_dec_casd_augment}. To have a good augmenting model, it must be fundamentally different from the baseline model. We present Context-Aware Speculative Decoding (CASD), which is such an augmenting technique that does not work well by itself, but its drafts help well where the current SOTA (EAGLE-2 \cite{li2024eagle}) underperforms.
+There are many stand-alone techniques to do speculative decoding. Each technique tries to perform as good as it can by itself. However, what seems to be underexplored in the domain of speculative decoding is the possibility of augmenting techniques. An augmenting technique will use a strong baseline method and try to fill in the gaps, where the baseline model underperforms. This principle is shown in Figure \ref{fig:spec_dec_casd_augment}. To have a good augmenting model, it must be fundamentally different from the baseline model. We present Context-Aware Speculative Decoding (CASD), which is such an augmenting technique, that generates drafts where the current SOTA (EAGLE-2 \cite{li2024eagle}) underperforms.
 
 \begin{figure}[h]
 	\centering
@@ -20,7 +20,7 @@ CASD is a lightweight statistical method to generate speculative samples from th
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.7\linewidth]{fig/CASD_example_prompt.png}
-	\caption{CASD applied to a simplified RAG prompt. The \textcolor{orange-ish}{prefix} ("that an LLM") is found in the context and thus the \textcolor{blue-ish}{continuation} ("might sometimes repeat parts") is drafted by CASD.}
+	\caption{CASD applied to a simplified RAG prompt. The \textcolor{orange-ish}{prefix} (``that an LLM'') is found in the context and thus the \textcolor{blue-ish}{continuation} (``might sometimes repeat parts'') is drafted by CASD.}
 	\label{fig:CASD_example_prompt}
 \end{figure}
 
@@ -28,7 +28,7 @@ CASD is a lightweight statistical method to generate speculative samples from th
 In this section, we analyze the performance of CASD, mainly comparing with EAGLE-2.
 
 \subsection{Experimental setup}
-\textbf{Models.} The experiments include only Llama-3-8B-Instruct \cite{grattafiori2024llama} as an LLM, as only this model fit our following constraints. The first constraint is that of hardware: 8B is the largest model that fit on the used GPU. Since one of our benchmarks has Dutch content (UZGentRAG, see further), we also need a Dutch-capable LLM. Lastly, the SOTA baseline, EAGLE-2 also has to support the LLM. This yielded Llama-3-8B-Instruct as the chosen model for all experiments. 
+\textbf{Models.} The experiments use only Llama-3-8B-Instruct \cite{grattafiori2024llama} as an LLM, as only this model fits our following constraints. The first constraint is the hardware: 8B is the largest model that fits on the used GPU. Since one of our benchmarks has Dutch content (UZGentRAG, see further), we also need a Dutch-capable LLM. Lastly, the SOTA baseline, EAGLE-2 also has to support the LLM. This yields Llama-3-8B-Instruct as the chosen model for all experiments. 
 
 \textbf{Tasks.} CASD is evaluated on our private UZGentRAG benchmark (see further), SQuAD \cite{rajpurkar2016squad} and the classical speculative decoding benchmarks (Alpaca \cite{alpaca}, GSM8K \cite{cobbe2021gsm8k}, HumanEval \cite{chen2021evaluating}, MT-bench \cite{zheng2023judging}, Natural Questions a.k.a. QA \cite{kwiatkowski2019natural} and CNN/DM \cite{nallapati2016abstractive}). All experiments were performed with batch size 1, conform with most related work \cite{kim2023speculative, leviathan2023fast, li2024eagle, zhou2023distillspec}.
 
@@ -46,15 +46,16 @@ We hypothesized that EAGLE-2 would underperform in multilingual settings and nic
 
 To prove our hypothesis, we had to go beyond the standard English speculative decoding benchmarks. However, low-resource languages such as Dutch have limited benchmarks available and for RAG use cases we did not find any. That is why we made our own benchmark. As mentioned in Section \ref{sec:uzgent_test_results_and_feedback}, we held a test session at UZGent. In that session, we not only evaluated the RAG system, but we also constructed UZGentRAG, a private niche RAG benchmark in Dutch and for the medical domain. This benchmark contains the queries logged from the daily work of doctors and nurses, by recording their questions to a chatbot. Internal UZGent documents found by the chatbot were combined with the query in a typical RAG prompt. These prompts form the benchmark, as that is the only data necessary to test a speculative decoding method.
 
-While we cannot make the entire dataset public, we are allowed to give some insights. Table \ref{tab:uzgentrag_benchmark} shows some relevant statistics of UZGentRAG. The number of prompts of UZGentRAG is rather limited for a benchmark, however we see that EAGLE-2 uses 80 questions per benchmark and for speculative decoding that order of magnitude seems acceptable. That is also the reason our RAG adaptation of SQuAD was capped at 80 questions. The prompt length might also surprise, because SQuAD has rather large prompts. This is because the adaptation required few-shot prompting to achieve satisfactory answers from the LLM and those few shots take up some space in every prompt. For the length in tokens, we used the Llama 3 \cite{grattafiori2024llama} tokenizer, consistent with our experiments later. The last metric, BLEU, is good at measuring how much is copied between context and answer; exactly what CASD needs. It is clear that UZGentRAG is often copying from the context, but SQuAD copies even more. As this thesis is not about the BLEU score, we do not further elaborate on how this metric checks for copying. For reproducibility, it needs to be said that we edited the metric to have no brevity penalty as this is not relevant to our use case.
+While we cannot make the entire dataset public, we are allowed to give some insights. Table \ref{tab:uzgentrag_benchmark} shows some relevant statistics of UZGentRAG, compared with SQuAD. The number of prompts of UZGentRAG is rather limited for a benchmark, however we see that EAGLE-2 uses 80 questions per benchmark and for speculative decoding that order of magnitude seems acceptable. That is also the reason our RAG adaptation of SQuAD was capped at 80 questions. The prompt length might also surprise, because SQuAD has rather large prompts. This is because the adaptation required few-shot prompting to achieve satisfactory answers from the LLM and those few shots take up some space in every prompt. For the length in tokens, we used the Llama 3 \cite{grattafiori2024llama} tokenizer, consistent with our experiments later. The last metric, BLEU, is good at measuring how much is copied between context and answer; exactly what CASD needs. It is clear that UZGentRAG is often copying from the context, but SQuAD copies even more. As this thesis is not about the BLEU score, we do not further elaborate on how this metric checks for copying. For reproducibility, it needs to be said that we edited the metric to have no brevity penalty as this is not relevant to our use case.
 
 \begin{table}[h]
     \centering
     \begin{tabular}{l|cc}
          & UZGentRAG & SQuAD (RAG) \\
         \hline
+        language & Dutch & English \\
         \# prompts & 165 & 80 \\
-        \# documents per prompt & 3 & 1 \\ 
+        \# chunks per prompt & 3 & 1 \\ 
         mean prompt length & 2420 char - 780 tokens & 2947 char - 615 tokens\\
         mean answer length & 849 char - 83 tokens & 83 char - 18 tokens\\
         %BLEU score & 0.06 & 0.0000003\\
@@ -64,7 +65,7 @@ While we cannot make the entire dataset public, we are allowed to give some insi
     \label{tab:uzgentrag_benchmark}
 \end{table}
 
-In order to give some idea what a typical UZGentRAG prompt might look like, one example is given below. It always starts with a role description. Then the documents are given, split by ``---''. Finally, the question from the user is added.
+In order to give some idea what a typical UZGentRAG prompt might look like, one example is given below. It always starts with a role description. Then the documents are given, split by ``---''. Finally, the question of the user is added.
 
 \begin{wrapverbatim}
 [begin context]
@@ -196,7 +197,7 @@ Figure \ref{fig:energy_vs_eagle} shows the improvement in GPU energy consumption
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.7\linewidth]{fig/acceptance_length.png}
-  \caption{Distribution of acceptance lengths with CASD augmenting EAGLE-2. The tokens that are generated by copying are highlighted in blue, while the gray tokens were generated by EAGLE-2.}
+  \caption{Distribution of acceptance lengths with CASD augmenting EAGLE-2. The tokens that are generated by copying with CASD, are highlighted in blue, while the gray tokens were generated by EAGLE-2.}
   \label{fig:acceptance_length}
 \end{figure}
 
@@ -226,7 +227,7 @@ Table \ref{tab:ablation_benchmarks} shows how CASD$_{prompt}$ performs. For the 
 
 \section{Further analysis}
 \label{sec:further_analysis}
-This section details the analysis that shows the reasoning behind some implementation choices.
+This section shows the reasoning behind some implementation choices, by further analyzing CASD.
 
 In CASD, we only take the top-2 matches according to match length. This implicitly assumes that longer matches are better and Figure \ref{fig:prob_casd_accept} (a) validates this assumption. The first interesting feature is that the further to the right, the higher the probability (typically), and this for all rows. This shows that the average accepted length grows longer with longer match lengths. But not only does this validate that longer matches generate better speculations, it also opens up an area of future work. Instead of taking the 10 next tokens of a match regardless of the match length, CASD could also work with adaptive length speculations. A good idea could be to put a threshold on a certain acceptance probability and only add tokens that have more chance of being accepted than that threshold. 
 
@@ -234,7 +235,7 @@ For completeness' sake, we also point out some details that might be confusing a
 
 The most important part for an augmenting method such as CASD to work is that the speculations are quite independent. The fact that CASD actually improved upon EAGLE-2 on RAG benchmarks already proves the independence, but Figure \ref{fig:prob_casd_eagle_overlap} (b) adds some context as to why. The plot shows the chances that a token drafted by CASD is already drafted by EAGLE-2. The first thing to notice is that the further to the right, the higher the probabilities typically become and this for each row. What this means is that EAGLE-2 already has some notion of copying. The longer the text that was already copied, the more likely that EAGLE-2 will also predict the tokens that CASD predicts. Yet, we also see that the probabilities drop quite fast when the prediction depth grows larger. As EAGLE-2 does not predict beyond 7 depth, the chances are 0 there. And this is where the strength of CASD lies: it copies longer spans literally.
 
-The last plot, Figure \ref{fig:prob_casd_eagle_overlap} (c), shows where CASD adds value on top of EAGLE-2. It shows only the tokens that CASD actually added to the draft tree and not the tokens that EAGLE-2 already drafted (i.e. duplicate drafts). There are two key takeaways from this plot. Firstly, it is clear that EAGLE-2 already picked the low-hanging fruit for small prediction depths, because the probabilities are much lower there than for subfigure (a). Secondly, from depth 5 and onwards, the probabilities did not change much, which means that CASD is drafting non-trivial tokens there. In other words, the peak of added value by CASD is around prediction depth 5. For smaller depths, the copying is too trivial and EAGLE-2 already notices these tokens. For larger depths, it becomes harder and harder to draft good tokens for any method, so also for CASD. Do note that these last results of subfigure (a) and (b) are specific for the interaction between CASD and EAGLE-2 and different baseline speculators will lead to different results.
+The last plot, Figure \ref{fig:prob_casd_eagle_overlap} (c), shows where CASD adds value on top of EAGLE-2. It shows only the tokens that CASD actually added to the draft tree and not the tokens that EAGLE-2 already drafted (i.e. duplicate drafts). There are two key takeaways from this plot. Firstly, it is clear that EAGLE-2 already picked the low-hanging fruit for small prediction depths, because the probabilities are much lower there than for subfigure (a). Secondly, from depth 5 and onwards, the probabilities did not change much, which means that CASD is drafting non-trivial tokens there. In other words, the peak of added value by CASD is around prediction depth 5. For smaller depths, the copying is too trivial and EAGLE-2 already notices these tokens. For larger depths, it becomes harder and harder to draft good tokens for any method, so also for CASD. Do note that these last results of subfigure (b) and (c) are specific for the interaction between CASD and EAGLE-2 and different baseline speculators will lead to different results.
 
 \begin{landscape}
 
@@ -244,7 +245,7 @@ The last plot, Figure \ref{fig:prob_casd_eagle_overlap} (c), shows where CASD ad
   \begin{tabular}{@{}l@{}@{}l@{}@{}l@{}}
     \includegraphics[width=.33\linewidth]{fig/prob_casd_accept.png} & \includegraphics[width=.33\linewidth]{fig/prob_casd_eagle_overlap.png} & \includegraphics[width=.30\linewidth, height=.371\linewidth]{fig/prob_casd_non_eagle_accept.png} \\[0.5cm]
     \hspace{0.5cm} \parbox{.27\linewidth}{\small (a) CASD has long predictions of high quality, certainly for long match lengths. \newline \newline \newline} 
-    & \hspace{0.5cm} \parbox{.27\linewidth}{\small (b) For few steps into the future, CASD's tokens often overlap with EAGLE, but tokens deeper into the future barely overlap. So, EAGLE-2 already has some notion of copying, but only for the near future.}
+    & \hspace{0.5cm} \parbox{.27\linewidth}{\small (b) For few steps into the future, CASD's tokens often overlap with EAGLE-2, but tokens deeper into the future barely overlap. So, EAGLE-2 already has some notion of copying, but only for the near future.}
     & \hspace{0.5cm} \parbox{.27\linewidth}{\small (c) The tokens drafted by CASD and not by EAGLE-2 are accepted frequently, certainly for long match lengths. CASD gets most tokens accepted around depth 5, when augmenting EAGLE-2.} 
   \end{tabular}
   \vspace{0.2cm}
