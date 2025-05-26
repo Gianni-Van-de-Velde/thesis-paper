@@ -2,13 +2,13 @@
 \chapter{Conclusions and future work}
 \label{sec:conclusion_future_work}
 
-In this thesis, we introduced CASD, a model-agnostic augmentation to any modern speculator for speculative decoding. Multiple benchmarks proved its performance in RAG scenarios, while overhead for other scenarios remains limited. We introduced one of those benchmarks ourselves; UZGentRAG is made of real-world questions that healthcare professionals asked a RAG chatbot, which we implemented at UZGent. To summarize the findings, we answer the research questions posed in the introduction:
+In this thesis, we introduced CASD, a model-agnostic augmentation to any modern speculator for speculative decoding. Multiple benchmarks proved its superior performance in RAG scenarios, compared to the current state-of-the-art (EAGLE-2 \cite{li2024eagle}), while overhead for other scenarios remains limited. We introduced one of those benchmarks ourselves; UZGentRAG is made of real-world questions that healthcare professionals asked a RAG chatbot, which we implemented at UZGent. To summarize the findings, we answer the research questions posed in the introduction:
 
 \begin{tcolorbox}[colback=blue-ish-light,colframe=blue-ish,title=\textbf{RQ1:} {{Can a new speculative decoding strategy be designed, relying on the repetition of phrases in prompt and answer, resulting in increased inference efficiency of LLMs?}}, coltitle=white]
-    Yes it can. In RAG use cases, our new method CASD successfully improves speculative decoding, by drafting copies from the context. As UZGentRAG and SQuAD are benchmarks of the intended use cases, only these are mentioned below.
+    Yes it can. In RAG use cases, our new method CASD successfully improves speculative decoding, by drafting copies from the context. As UZGentRAG and SQuAD \cite{rajpurkar2016squad} are benchmarks of the intended use cases, only these are mentioned below.
     \begin{itemize}
-        \item \textbf{RQ 1.1} Which energy gains does CASD make? CASD makes energy gains of 17\% on UZGentRAG and 7\% on SQuAD.
-        \item \textbf{RQ 1.2} Which speedups does CASD deliver? The speedups are 1.17 for UZGentRAG and 1.08 for SQuAD.
+        \item \textbf{RQ 1.1} Which energy gains does CASD make? CASD makes energy gains of 17\% on UZGentRAG and 7\% on SQuAD compared to EAGLE-2.
+        \item \textbf{RQ 1.2} Which speedups does CASD deliver? The speedups are 1.17 for UZGentRAG and 1.08 for SQuAD, compared to EAGLE-2.
     \end{itemize}
 \end{tcolorbox}
 
@@ -38,3 +38,5 @@ Also for the use case at UZGent we summarize the future work:
     \item On the practical side, we suggest that UZGent focuses on evaluation rather than implementation. UZGent is a hospital and its IT department works hard to make the life of their healthcare professionals easier. Developing in-house AI solutions is likely beyond the scope of that task. What seems more realistic is that the IT department builds up a good framework to evaluate all AI solution providers and to see which solution benefits their healthcare professionals the most. The test set for retrieval we made together is certainly a step in the right direction. As the retrieval of current systems is subpar compared to the possibilities of modern AI, we suggest to start there.
     \item On the technical side, many possibilities remain unexplored. The low-hanging fruit for the data in Zenya, might be to add metadata to the queries. However, fine-tuning the AI models seems to have the largest potential impact, as current embedders get confused by terms that were not part of their training data.
 \end{itemize}
+
+For more details on CASD's future, the effects of its energy gains and the societal impact of this thesis, we refer to Chapter \ref{sec:societal_impact}.
