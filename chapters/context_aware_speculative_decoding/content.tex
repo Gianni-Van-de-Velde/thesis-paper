@@ -46,7 +46,7 @@ We hypothesized that EAGLE-2 would underperform in multilingual settings and nic
 
 To prove our hypothesis, we had to go beyond the standard English speculative decoding benchmarks. However, low-resource languages such as Dutch have limited benchmarks available and for RAG use cases we did not find any. That is why we made our own benchmark. As mentioned in Section \ref{sec:uzgent_test_results_and_feedback}, we held a test session at UZGent. In that session, we not only evaluated the RAG system, but we also constructed UZGentRAG, a private niche RAG benchmark in Dutch and for the medical domain. This benchmark contains the queries logged from the daily work of doctors and nurses, by recording their questions to a chatbot. Internal UZGent documents found by the chatbot were combined with the query in a typical RAG prompt. These prompts form the benchmark, as that is the only data necessary to test a speculative decoding method.
 
-While we cannot make the entire dataset public, we are allowed to give some insights. Table \ref{tab:uzgentrag_benchmark} shows some relevant statistics of UZGentRAG, compared with SQuAD. The number of prompts of UZGentRAG is rather limited for a benchmark, however we see that EAGLE-2 uses 80 questions per benchmark and for speculative decoding that order of magnitude seems acceptable. That is also the reason our RAG adaptation of SQuAD was capped at 80 questions. The prompt length might also surprise, because SQuAD has rather large prompts. This is because the adaptation required few-shot prompting to achieve satisfactory answers from the LLM and those few shots take up some space in every prompt. For the length in tokens, we used the Llama 3 \cite{grattafiori2024llama} tokenizer, consistent with our experiments later. The last metric, BLEU, is good at measuring how much is copied between context and answer; exactly what CASD needs. It is clear that UZGentRAG is often copying from the context, but SQuAD copies even more. As this thesis is not about the BLEU score, we do not further elaborate on how this metric checks for copying. For reproducibility, it needs to be said that we edited the metric to have no brevity penalty as this is not relevant to our use case.
+While we cannot make the entire dataset public, we are allowed to give some insights. Table \ref{tab:uzgentrag_benchmark} shows some relevant statistics of UZGentRAG, compared with SQuAD. The number of prompts of UZGentRAG is rather limited for a benchmark, however we see that EAGLE-2 uses 80 questions per benchmark and for speculative decoding that order of magnitude seems acceptable. That is also the reason our RAG adaptation of SQuAD was capped at 80 questions. The prompt length might also surprise, because SQuAD has rather large prompts. This is because the adaptation required few-shot prompting to achieve satisfactory answers from the LLM and those few shots take up some space in every prompt. For the length in tokens, we used the Llama 3 \cite{grattafiori2024llama} tokenizer, consistent with our experiments later. The last metric, BLEU, is good at measuring how much is copied between context and answer; exactly what CASD needs. It is clear that UZGentRAG often requires copying from the context, but that holds even more for SQuAD. As this thesis is not about the BLEU score, we do not further elaborate on how this metric checks for copying. For reproducibility, it needs to be said that we edited the metric to have no brevity penalty as this is not relevant to our use case.
 
 \begin{table}[h]
     \centering
@@ -65,76 +65,18 @@ While we cannot make the entire dataset public, we are allowed to give some insi
     \label{tab:uzgentrag_benchmark}
 \end{table}
 
-In order to give some idea what a typical UZGentRAG prompt might look like, one example is given below. It always starts with a role description. Then the documents are given, split by ``---''. Finally, the question of the user is added.
+In order to give some idea what a typical UZGentRAG prompt might look like, one shortened example is given below. For the full prompt, we refer to Appendix \ref{sec:example_prompt}.
 
 \begin{wrapverbatim}
 [begin context]
 Jij bent een dokter. Jij kent alle medische procedures van het UZGent.
 [einde context]
 [begin documenten]
-obij verhoogde nuchtere of at random glycemie: bijkomend bepalen HbA1c
- 
-4.5 Diagnostiek cont'd 
-Beeldvorming 
--Hypofyse:
-oI.g.v. anders onverklaarde hoofdpijn, gezichtsvelduitval (met name uitval lateraal), 
-hormonaal bilan suggestief voor hypofysitis / hypopituïtarisme : dringende MRI hypofyse 
-(hypofysitis? RIP?), in overleg met MRI radioloog van wacht.
-oZo normale MRI en sterk suggestief klinisch beeld, nieuwe MRI na 1 maand.
- 
--Schildklier:
-oBij thyreotoxicosis, pijnlijke schildklieropzetting - te plannen via polikliniek Endocrinologie 
-(urgente poli-afspraak via D22137, na overleg met endocrinoloog van wacht).
-5. Beleid en verloop
-5.1 Behandeling hypothyreose
-Graad
- 
-Graad 1
-(TSH < 10 mU/L): 
- 
-Graad 2-3
-(TSH > 10 mU/L ): Graad 4
- 
- 
-Behandeling
- 
--Controle na 6 weken;
-
+*chunk 1*
 ---
-
--Labo:
-oHbA1c
-oBloedgroep en Indirecte Coombs
-oEPD >  Plaatsen van Orders > Subset Klinische biologie Gyn/Materniteit > Prenataal 1ste 
-consult
-o(NB: enkel bepalen wat nog niet bekend is).
-oZo combinatietest gewenst: EPD >  Plaatsen van Orders > Subset Klinische biologie 
-Gyn/Materniteit > Combinatietest 1ste trimester
-oZo bekende schildklierpathologie: (zie richtlijn "Schildklierlijden en zwangerschap")
--Bepaal ook FT4, FT3.
--Bij gekende Morbus Graves: bepaal TSI-antilichamen (belang voor foetale en neonatale 
-opvolging).
--Bij hypothyreoïdie en bekende diagnose Morbus Graves: geen verdere bepalingen van 
-antistoffen nodig.
--Bij onduidelijke diagnose: bepaal TPO- en TSI-antilichamen.
--Bij gekende hypothyreoïdie: verhoog dosis levothyroxine met 25 tot 50\%
-
+*chunk 2*
 ---
-
-- Inname levothyroxine en zwangerschapsvitamines/ijzersuppletie met minstens 2 uur 
-tussen (ivm verminderde absorptie bij gebruik met ijzerbevattende supplementen)
-Nieuwe diagnose hypothyreoïdie
-- Zie flowchart nieuwe diagnose hypothyreoïdie
-- Indien substitutie aangewezen is, start een lage dosis levothyroxine bvb 50mcg per 
-dag.
-Gekende hypothyreoïdie
-- Anamnese bij 1ste consultatie: Hoe lang bestaand? Ontstaan? Oorzaak? Uitsluiten 
-behandelde Morbus Graves. Behandeling?
-- Bij een positieve zwangerschapstest dosis met 25\% verhogen (dit kan vb. door 2 van 
-de 7 dagen van de week een dubbele dosis in te nemen).
-- Controle bij 1e bloedafname in de zwangerschap:
-- Bepaling van TSH, vrij-T4 en vrij-T3
-- Bepaling van TSI i.g.v. iatrogene hypothyreoïdie bij ziekte van Graves of bij
+*chunk 3*
 [einde documenten]
 [begin vraag]
 Wat moet ik doen bij een graad 1 immuun-gerelateerde hypothyroïdie?
@@ -197,7 +139,7 @@ Figure \ref{fig:energy_vs_eagle} shows the improvement in GPU energy consumption
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.7\linewidth]{fig/acceptance_length.png}
-  \caption{Distribution of acceptance lengths with CASD augmenting EAGLE-2. The tokens that are generated by copying with CASD, are highlighted in blue, while the gray tokens were generated by EAGLE-2.}
+  \caption{Distribution of acceptance lengths with CASD augmenting EAGLE-2. CASD supplements EAGLE-2 with long-length drafts.}
   \label{fig:acceptance_length}
 \end{figure}
 

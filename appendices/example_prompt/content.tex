@@ -1,0 +1,80 @@
+\chapter{Example prompt of UZGentRAG}
+\label{sec:example_prompt}
+
+We introduced a new private benchmark, UZGentRAG. In order to give some idea what a typical UZGentRAG prompt might look like, one example is given below. It always starts with a role description. Then the documents are given, split by ``---''. Finally, the question of the user is added.
+
+\begin{wrapverbatim}
+[begin context]
+Jij bent een dokter. Jij kent alle medische procedures van het UZGent.
+[einde context]
+[begin documenten]
+obij verhoogde nuchtere of at random glycemie: bijkomend bepalen HbA1c
+ 
+4.5 Diagnostiek cont'd 
+Beeldvorming 
+-Hypofyse:
+oI.g.v. anders onverklaarde hoofdpijn, gezichtsvelduitval (met name uitval lateraal), 
+hormonaal bilan suggestief voor hypofysitis / hypopituïtarisme : dringende MRI hypofyse 
+(hypofysitis? RIP?), in overleg met MRI radioloog van wacht.
+oZo normale MRI en sterk suggestief klinisch beeld, nieuwe MRI na 1 maand.
+ 
+-Schildklier:
+oBij thyreotoxicosis, pijnlijke schildklieropzetting - te plannen via polikliniek Endocrinologie 
+(urgente poli-afspraak via D22137, na overleg met endocrinoloog van wacht).
+5. Beleid en verloop
+5.1 Behandeling hypothyreose
+Graad
+ 
+Graad 1
+(TSH < 10 mU/L): 
+ 
+Graad 2-3
+(TSH > 10 mU/L ): Graad 4
+ 
+ 
+Behandeling
+ 
+-Controle na 6 weken;
+
+---
+
+-Labo:
+oHbA1c
+oBloedgroep en Indirecte Coombs
+oEPD >  Plaatsen van Orders > Subset Klinische biologie Gyn/Materniteit > Prenataal 1ste 
+consult
+o(NB: enkel bepalen wat nog niet bekend is).
+oZo combinatietest gewenst: EPD >  Plaatsen van Orders > Subset Klinische biologie 
+Gyn/Materniteit > Combinatietest 1ste trimester
+oZo bekende schildklierpathologie: (zie richtlijn "Schildklierlijden en zwangerschap")
+-Bepaal ook FT4, FT3.
+-Bij gekende Morbus Graves: bepaal TSI-antilichamen (belang voor foetale en neonatale 
+opvolging).
+-Bij hypothyreoïdie en bekende diagnose Morbus Graves: geen verdere bepalingen van 
+antistoffen nodig.
+-Bij onduidelijke diagnose: bepaal TPO- en TSI-antilichamen.
+-Bij gekende hypothyreoïdie: verhoog dosis levothyroxine met 25 tot 50\%
+
+---
+
+- Inname levothyroxine en zwangerschapsvitamines/ijzersuppletie met minstens 2 uur 
+tussen (ivm verminderde absorptie bij gebruik met ijzerbevattende supplementen)
+Nieuwe diagnose hypothyreoïdie
+- Zie flowchart nieuwe diagnose hypothyreoïdie
+- Indien substitutie aangewezen is, start een lage dosis levothyroxine bvb 50mcg per 
+dag.
+Gekende hypothyreoïdie
+- Anamnese bij 1ste consultatie: Hoe lang bestaand? Ontstaan? Oorzaak? Uitsluiten 
+behandelde Morbus Graves. Behandeling?
+- Bij een positieve zwangerschapstest dosis met 25\% verhogen (dit kan vb. door 2 van 
+de 7 dagen van de week een dubbele dosis in te nemen).
+- Controle bij 1e bloedafname in de zwangerschap:
+- Bepaling van TSH, vrij-T4 en vrij-T3
+- Bepaling van TSI i.g.v. iatrogene hypothyreoïdie bij ziekte van Graves of bij
+[einde documenten]
+[begin vraag]
+Wat moet ik doen bij een graad 1 immuun-gerelateerde hypothyroïdie?
+[einde vraag]
+[begin antwoord]
+
+\end{wrapverbatim}
